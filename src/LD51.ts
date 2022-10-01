@@ -1,4 +1,5 @@
 import {Game, Scene} from "lagom-engine";
+import {NotePlayer, Player} from "./midi/NotePlay";
 
 export class LD51 extends Game
 {
@@ -15,7 +16,8 @@ class MainScene extends Scene
     onAdded()
     {
         super.onAdded();
-
+        this.addGlobalSystem(new NotePlayer());
+        this.addEntity(new Player("a", 0, 0));
 
     }
 }

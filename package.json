@@ -16,6 +16,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "^5.0.0",
+    "tone": "^14.7.77",
     "typescript": "^4.6.3"
   },
   "eslintConfig": {
@@ -28,9 +29,9 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@types/reactstrap": "^8.0.4",
     "@types/react": "^16.8.10",
     "@types/react-dom": "^16.8.3",
+    "@types/reactstrap": "^8.0.4",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.24.0",
