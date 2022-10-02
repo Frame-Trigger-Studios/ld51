@@ -1,4 +1,4 @@
-import {Entity, Game, Scene, Sprite, SpriteSheet} from "lagom-engine";
+import { Entity, Game, Scene, Sprite, SpriteSheet, Mouse, Component, TextDisp, GlobalSystem } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 
 import background from "./art/bg.png";
@@ -15,11 +15,14 @@ export enum Layers
     GUI
 }
 
+export const screenWidth = 480;
+export const screenHeight = 320;
+
 export class LD51 extends Game
 {
     constructor()
     {
-        super({width: 480, height: 320, resolution: 2, backgroundColor: 0x202020});
+        super({ width: screenWidth, height: screenHeight, resolution: 2, backgroundColor: 0x202020 });
 
         this.addResource("background", new SpriteSheet(background, 480, 320));
         this.addResource("note", new SpriteSheet(note, 14, 15));
@@ -62,5 +65,93 @@ class MainScene extends Scene
 
         this.addGlobalSystem(new NotePlayer());
 
+        this.addGUIEntity(new Entity("restartButton", 0, 0, Layers.GUI))
+            .addComponent(new RestartButton());
+
+        this.addGlobalSystem(new ClickListener());
     }
 }
+
+class ClickAction extends Component {
+    constructor(readonly action: number) {
+        super();
+    }
+
+    onAction() {
+        switch (this.action) {
+            // Start game
+            case 0:
+                {
+                    console.log("Start game");
+                    const game = this.getScene().getGame();
+                    game.setScene(new MainScene(game));
+                    break;
+                }
+            // Restart
+            case 1:
+                {
+                    // todo reset anything needed
+                    // commented out until its not annoying
+                    //const game = this.getScene().getGame();
+                    //game.setScene(new MainMenuScene(game));
+
+                    console.log("Restart game");
+                    break;
+                }
+        }
+    }
+}
+
+class ClickListener extends GlobalSystem {
+    types = () => [ClickAction];
+
+    update(delta: number): void {
+        this.runOnComponents((actions: ClickAction[]) => {
+            if (this.getScene().getGame().mouse.isButtonPressed(0)) {
+                for (const action of actions) {
+                    action.onAction();
+                    //button.destroy();
+                }
+            }
+        })
+    }
+}
+
+class MainMenuScene extends Scene {
+
+    onAdded() {
+        super.onAdded();
+        this.addGUIEntity(new Entity("gameNameText"))
+            .addComponent(new TextDisp(screenWidth / 4, screenHeight / 4, "InsertGameNameHere", { fill: "white", fontSize: 40 }));
+
+        this.addGUIEntity(new Entity("playButton"))
+            .addComponent(new PlayButton());
+
+        this.addGlobalSystem(new ClickListener());
+    }
+
+}
+
+class PlayButton extends TextDisp {
+    constructor() {
+        super(screenWidth / 3, screenHeight / 2, "PLAY", { fill: "white", fontSize: 20 });
+    }
+
+    onAdded() {
+        super.onAdded();
+        this.getEntity().addComponent(new ClickAction(0));
+    }
+}
+
+// Todo make restart sprite in top corner or something
+class RestartButton extends TextDisp {
+    constructor() {
+        super(screenWidth - 80, 10, "Restart", { fill: "white", fontSize: 15 });
+    }
+
+    onAdded() {
+        super.onAdded();
+        this.getEntity().addComponent(new ClickAction(1));
+    }
+}
+
