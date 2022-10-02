@@ -6,7 +6,7 @@ import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
 
 import note_tail from "./art/note-tail.png";
-import {createNote, Note, NoteData} from "./notes";
+import {createNote, Register, NoteData} from "./notes";
 import {switzerland} from "./midi/Songs";
 
 export enum Layers
@@ -57,15 +57,15 @@ class MainScene extends Scene
         for (let i = 0; i < 10; i++) {
             const bar = bars[Math.floor(Math.random() * 7)];
             const position = Math.floor(Math.random() * 240);
-            const coinflip = Math.floor(Math.random() * 2);
+            const register = Math.floor(Math.random() * 2);
             const duration = Math.floor(Math.random() * 80);
 
-            const note = new NoteData(coinflip, duration, false);
+            const note = new NoteData(register, duration, false);
             createNote(this, note, bar, position);
         }
 
         // Playing note.
-        const note = new NoteData(Note.LOW, 50, true);
+        const note = new NoteData(Register.LOW, 50, true);
         createNote(this, note, bars[0], 0);
 
         this.addGlobalSystem(new NotePlayer());
