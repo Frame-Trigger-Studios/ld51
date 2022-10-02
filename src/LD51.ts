@@ -8,8 +8,10 @@ import selected_combo from "./art/selected.png";
 import selected_ring from "./art/rings.png";
 
 import note_tail from "./art/note-tail.png";
-import {createNote, Register, NoteData} from "./notes";
+import {createNote, Register, NoteData} from "./ui/notes";
 import {switzerland} from "./midi/Songs";
+import {BarHighlighter} from "./ui/BarHighlighter";
+import {DestroySystem} from "./util/DestroyMeNextFrame";
 
 export enum Layers
 {
@@ -32,7 +34,7 @@ export class LD51 extends Game
         this.addResource("note-sustain", new SpriteSheet(note_sustain, 1, 5));
         this.addResource("note-tail", new SpriteSheet(note_tail, 4, 5));
         this.addResource("selected-combo", new SpriteSheet(selected_combo, 24, 24))
-        this.addResource("selected-ring", new SpriteSheet(selected_ring, 56, 28));
+        this.addResource("selected-ring", new SpriteSheet(selected_ring, 28, 28));
 
         this.resourceLoader.loadAll().then(() => {
             this.setScene(new MainScene(this));
@@ -73,6 +75,7 @@ class MainScene extends Scene
         createNote(this, note, bars[0], 0);
 
         this.addGlobalSystem(new NotePlayer());
+        this.addGlobalSystem(new BarHighlighter());
 
         this.addGUIEntity(new Entity("restartText", 0, 0, Layers.GUI))
             .addComponent(new RestartText());
@@ -81,6 +84,7 @@ class MainScene extends Scene
         this.addGlobalSystem(new TimerSystem());
 
         this.addSystem(new SongLoader());
+        this.addSystem(new DestroySystem());
         this.addSystem(new SongStarter());
 
         const e = this.addEntity(new Entity("switzerland"));

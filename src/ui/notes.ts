@@ -1,5 +1,5 @@
 import {Component, Entity, Scene, Sprite} from "lagom-engine";
-import {Layers} from "./LD51";
+import {Layers} from "../LD51";
 
 export enum Register {
     LOW,
