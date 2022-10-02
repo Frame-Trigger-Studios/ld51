@@ -30,7 +30,7 @@ export class LD51 extends Game
         this.addResource("note-tail", new SpriteSheet(note_tail, 4, 5));
 
         this.resourceLoader.loadAll().then(() => {
-            this.setScene(new MainMenuScene(this));
+            this.setScene(new MainScene(this));
         });
     }
 
