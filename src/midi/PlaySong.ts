@@ -1,9 +1,9 @@
-import {Component, Entity, Key, Log, System, Timer, TimerSystem} from "lagom-engine";
+import {Component, Entity, Key, Log, System, Timer} from "lagom-engine";
 import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
 import {LeadNote, LeadTrack, SongTime, TrackPosition} from "./PlayableTrack";
-import {createNote, Register, NoteData} from "../ui/notes";
+import {createNote, NoteData, Register} from "../ui/notes";
 
 export class LoadSong extends Component
 {
@@ -192,10 +192,6 @@ export class SongLoader extends System<[LoadSong]>
             entity.addComponent(new SongTime(0));
             entity.addComponent(new TrackPosition(0));
             toLoad.destroy();
-            console.log(notes);
-
-
-            console.log(notes.length)
         });
     }
 }
