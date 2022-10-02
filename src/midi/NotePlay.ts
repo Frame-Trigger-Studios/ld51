@@ -1,15 +1,14 @@
-import {Button, Component, Entity, Game, GlobalSystem, Key, Sprite, System} from "lagom-engine";
+import {GlobalSystem, Key} from "lagom-engine";
 import * as Tone from 'tone';
 import {Synth} from "tone";
 import {instrument, Player} from "soundfont-player"
 
-class Note extends Component {
+class Note {
     keys: Key[];
     music_note: string;
 
-    constructor(key: Key[], music_note: string) {
-        super();
-        this.keys = key;
+    constructor(keys: Key[], music_note: string) {
+        this.keys = keys;
         this.music_note = music_note;
     }
 }
@@ -18,12 +17,11 @@ class Note extends Component {
 const synthOptions = Synth.getDefaults();
 synthOptions.envelope.release = 0.5;
 synthOptions.volume = -10;
-
 const synth = new Tone.Synth(synthOptions).toDestination();
 
 /* SoundFont-player */
 let trumpet: Player | undefined = undefined;
-instrument(new AudioContext(), 'trumpet', {soundfont: "MusyngKite", gain: 1})
+instrument(new AudioContext(), 'trumpet')
     .then((player: Player) => trumpet = player);
 
 
@@ -61,8 +59,6 @@ export class NotePlayer extends GlobalSystem {
                         // synth.triggerAttack(this.notes[i].music_note);
                         trumpet?.stop();
                         trumpet?.play(notes[i].music_note, undefined)
-                        console.log(notes[i].music_note)
-
                         break;
                     }
                 }
