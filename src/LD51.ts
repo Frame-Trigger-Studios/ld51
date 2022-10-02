@@ -37,6 +37,8 @@ export const screenHeight = 320;
 
 export class LD51 extends Game
 {
+    static debug = false;
+
     constructor()
     {
         super({ width: screenWidth, height: screenHeight, resolution: 2, backgroundColor: 0x202020 });
