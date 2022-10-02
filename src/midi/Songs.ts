@@ -1,4 +1,6 @@
-export const hbd = {
+import {MidiTrack} from "./MidiTypes";
+
+export const hbd: MidiTrack = {
     "header": {
         "keySignatures": [],
         "meta": [],
@@ -4607,4 +4609,4 @@ export const hbd = {
             "endOfTrackTicks": 6144
         }
     ]
-};
+} as unknown as MidiTrack;

@@ -1,7 +1,7 @@
-import {Game, Scene} from "lagom-engine";
+import {Entity, Game, Scene} from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
-import {hbd} from "./midi/Hbd";
-import {Midi} from "tone";
+import {hbd} from "./midi/Songs";
+import {PlaySong, Song, SongManager} from "./midi/PlaySong";
 
 export class LD51 extends Game
 {
@@ -12,10 +12,6 @@ export class LD51 extends Game
     }
 }
 
-const b64toBlob = (base64: string, type = 'application/octet-stream') =>
-    fetch(`data:${type};base64,${base64}`).then(res => res.blob());
-
-
 class MainScene extends Scene
 {
     onAdded()
@@ -23,8 +19,10 @@ class MainScene extends Scene
         super.onAdded();
         this.addGlobalSystem(new NotePlayer());
 
+        this.addSystem(new SongManager());
 
-        const midi = Midi.
-
+        const e = this.addEntity(new Entity("hbd"));
+        e.addComponent(new Song(hbd, 0));
+        e.addComponent(new PlaySong());
     }
 }
