@@ -55,7 +55,7 @@ class MainScene extends Scene
         // Entity for each of the 7 bars
         const bars = [];
         for (let i = 7; i > 0; i--) {
-            const bar = this.addEntity(new Entity("notes", 240, 40 * i, Layers.Background));
+            const bar = this.addEntity(new Entity("notes", 240, 40 * i, Layers.Notes));
             bars.push(bar);
         }
 
