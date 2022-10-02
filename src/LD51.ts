@@ -1,13 +1,17 @@
-import { Entity, Game, Scene, Sprite, SpriteSheet, Mouse, Component, TextDisp, GlobalSystem } from "lagom-engine";
+import { Entity, Game, Scene, Sprite, SpriteSheet, Mouse, Component, TextDisp, GlobalSystem, TimerSystem } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {LoadSong, NoteMover, NoteSpawner, SongLoader, SongStarter} from "./midi/PlaySong";
 import background from "./art/bg.png";
 import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
+import selected_combo from "./art/selected.png";
+import selected_ring from "./art/rings.png";
 
 import note_tail from "./art/note-tail.png";
-import {createNote, Note, NoteData} from "./notes";
+import {createNote, Register, NoteData} from "./ui/notes";
 import {switzerland} from "./midi/Songs";
+import {BarHighlighter} from "./ui/BarHighlighter";
+import {DestroySystem} from "./util/DestroyMeNextFrame";
 
 export enum Layers
 {
@@ -29,6 +33,8 @@ export class LD51 extends Game
         this.addResource("note", new SpriteSheet(note, 14, 15));
         this.addResource("note-sustain", new SpriteSheet(note_sustain, 1, 5));
         this.addResource("note-tail", new SpriteSheet(note_tail, 4, 5));
+        this.addResource("selected-combo", new SpriteSheet(selected_combo, 24, 24))
+        this.addResource("selected-ring", new SpriteSheet(selected_ring, 28, 28));
 
         this.resourceLoader.loadAll().then(() => {
             this.setScene(new MainScene(this));
@@ -57,25 +63,28 @@ class MainScene extends Scene
         for (let i = 0; i < 10; i++) {
             const bar = bars[Math.floor(Math.random() * 7)];
             const position = Math.floor(Math.random() * 240);
-            const coinflip = Math.floor(Math.random() * 2);
+            const register = Math.floor(Math.random() * 2);
             const duration = Math.floor(Math.random() * 80);
 
-            const note = new NoteData(coinflip, duration, false);
+            const note = new NoteData(register, duration, false);
             createNote(this, note, bar, position);
         }
 
         // Playing note.
-        const note = new NoteData(Note.LOW, 50, true);
+        const note = new NoteData(Register.LOW, 50, true);
         createNote(this, note, bars[0], 0);
 
         this.addGlobalSystem(new NotePlayer());
+        this.addGlobalSystem(new BarHighlighter());
 
-        this.addGUIEntity(new Entity("restartButton", 0, 0, Layers.GUI))
-            .addComponent(new RestartButton());
+        this.addGUIEntity(new Entity("restartText", 0, 0, Layers.GUI))
+            .addComponent(new RestartText());
 
         this.addGlobalSystem(new ClickListener());
+        this.addGlobalSystem(new TimerSystem());
 
         this.addSystem(new SongLoader());
+        this.addSystem(new DestroySystem());
         this.addSystem(new SongStarter());
         this.addSystem(new NoteSpawner(bars));
         this.addSystem(new NoteMover());
@@ -160,14 +169,13 @@ class PlayButton extends TextDisp
 }
 
 // Todo make restart sprite in top corner or something
-class RestartButton extends TextDisp
+class RestartText extends TextDisp
 {
-
     constructor()
     {
-        const restartButtonX = screenWidth - 80;
-        const restartButtonY = 10;
-        super(restartButtonX, restartButtonY, "Press 0 to restart", { fill: "white", fontSize: 10 });
+        const restartX = screenWidth - 85;
+        const restartY = 10;
+        super(restartX, restartY, "Press '0' to restart", { fill: "white", fontSize: 10 });
     }
 
     onAdded()

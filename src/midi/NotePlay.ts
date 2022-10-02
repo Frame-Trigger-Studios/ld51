@@ -1,15 +1,12 @@
-import {GlobalSystem, Key} from "lagom-engine";
+import {Component, GlobalSystem, Key} from "lagom-engine";
 import * as Tone from 'tone';
-import {Synth} from "tone";
+import {Synth} from 'tone';
 import {instrument, Player} from "soundfont-player"
+import {MainMenuScene} from "../LD51";
 
-class Note {
-    keys: Key[];
-    music_note: string;
-
-    constructor(keys: Key[], music_note: string) {
-        this.keys = keys;
-        this.music_note = music_note;
+export class Note extends Component {
+    constructor(public keys: Key[], public music_note: string) {
+        super();
     }
 }
 
@@ -24,46 +21,51 @@ let trumpet: Player | undefined = undefined;
 instrument(new AudioContext(), 'trumpet')
     .then((player: Player) => trumpet = player);
 
+export const lowerNotes: Note[] = [
+    new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "F#3"),
+    new Note([Key.KeyQ, Key.KeyE], "G3"),
+    new Note([Key.KeyW, Key.KeyE], "G#3"),
+    new Note([Key.KeyQ, Key.KeyW], "A3"),
+    new Note([Key.KeyQ], "A#3"),
+    new Note([Key.KeyW], "B3"),
+    new Note([], "C4"),
+];
+
+export const upperNotes: Note[] = [
+    new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "C#4"),
+    new Note([Key.KeyQ, Key.KeyE], "D4"),
+    new Note([Key.KeyW, Key.KeyE], "D#4"),
+    new Note([Key.KeyQ, Key.KeyW], "E4"),
+    new Note([Key.KeyQ], "F4"),
+    new Note([Key.KeyW], "F#4"),
+    new Note([], "G4"),
+];
 
 export class NotePlayer extends GlobalSystem {
-    lowerNotes: Note[] = [
-        new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "F#3"),
-        new Note([Key.KeyQ, Key.KeyE], "G3"),
-        new Note([Key.KeyW, Key.KeyE], "G#3"),
-        new Note([Key.KeyQ, Key.KeyW], "A3"),
-        new Note([Key.KeyQ], "A#3"),
-        new Note([Key.KeyW], "B3"),
-        new Note([], "C4"),
-    ];
-
-    upperNotes: Note[] = [
-        new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "C#4"),
-        new Note([Key.KeyQ, Key.KeyE], "D4"),
-        new Note([Key.KeyW, Key.KeyE], "D#4"),
-        new Note([Key.KeyQ, Key.KeyW], "E4"),
-        new Note([Key.KeyQ], "F4"),
-        new Note([Key.KeyW], "F#4"),
-        new Note([], "G4"),
-    ];
 
     types = () => [];
 
-    update(delta: number): void
-    {
-        if (this.getScene().getGame().keyboard.isKeyDown(Key.Space)) {
+    update(delta: number): void {
+        const game = this.getScene().getGame();
+        if (game.keyboard.isKeyDown(Key.Space)) {
             Tone.start().then(() => {
-                const notes = (this.getScene().getGame().keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight)) ? this.upperNotes : this.lowerNotes;
-                const note_down = notes.map(note => note.keys.every(k => this.getScene().getGame().keyboard.isKeyDown(k)));
-                for (let i = 0; i < note_down.length; i++) {
-                    if (note_down[i]) {
+                const notes = (game.keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight)) ? upperNotes : lowerNotes;
+
+                for (let i = 0; i < notes.length; i++) {
+                    if (notes[i].keys.every(k => game.keyboard.isKeyDown(k))) {
+                        console.log(notes[i]);
                         // synth.triggerAttack(this.notes[i].music_note);
                         trumpet?.stop();
                         trumpet?.play(notes[i].music_note, undefined)
+                        console.log(notes[i].music_note)
                         break;
                     }
                 }
             });
 
+        }
+        else if (game.keyboard.isKeyDown(Key.Digit0)) {
+            game.setScene(new MainMenuScene(game));
         } else {
             // synth.triggerRelease(Tone.now());
             trumpet?.stop();

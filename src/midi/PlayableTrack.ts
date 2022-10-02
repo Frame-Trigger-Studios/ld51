@@ -1,5 +1,5 @@
 import {Component} from "lagom-engine";
-import {Note as Register} from "../notes";
+import {Register} from "../ui/notes";
 
 export interface LeadNote
 {

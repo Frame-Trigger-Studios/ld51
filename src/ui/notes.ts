@@ -1,13 +1,13 @@
 import {Component, Entity, Scene, Sprite} from "lagom-engine";
-import {Layers} from "./LD51";
+import {Layers} from "../LD51";
 
-export enum Note {
+export enum Register {
     LOW,
     HIGH
 }
 
 export class NoteData extends Component {
-    constructor(public note: Note,
+    constructor(public note: Register,
                 public duration: number = 1,
                 public playing: boolean) {
         super();
@@ -25,7 +25,7 @@ export const getNoteSprite = (scene: Scene, note: NoteData): Sprite => {
 export const getNoteSustainSprite = (scene: Scene, note: NoteData): Sprite => {
 
     let note_index: number;
-    if (note.note === Note.LOW) {
+    if (note.note === Register.LOW) {
         if (note.playing) {
             note_index = 2;
         } else {
@@ -49,7 +49,7 @@ export const getNoteSustainSprite = (scene: Scene, note: NoteData): Sprite => {
 export const getNoteTailSprite = (scene: Scene, note: NoteData) => {
 
     let note_index: number;
-    if (note.note === Note.LOW) {
+    if (note.note === Register.LOW) {
         if (note.playing) {
             note_index = 2;
         } else {

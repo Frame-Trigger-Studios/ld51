@@ -3,7 +3,7 @@ import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
 import {LeadNote, LeadTrack, SongTime, TrackPosition} from "./PlayableTrack";
-import {createNote, Note, NoteData} from "../notes";
+import {createNote, Register, NoteData} from "../ui/notes";
 
 export class LoadSong extends Component
 {
@@ -170,9 +170,9 @@ export class SongLoader extends System<[LoadSong]>
                 // TODO we can do logic for the two notes that overlap if we want to, we know the octave
                 //  with noteComps[2]
                 if (index.lowIdx === -1) {
-                    notes.push({time: note.time, noteId: index.highIdx, duration: note.duration, register: Note.HIGH});
+                    notes.push({time: note.time, noteId: index.highIdx, duration: note.duration, register: Register.HIGH});
                 } else {
-                    notes.push({time: note.time, noteId: index.lowIdx, duration: note.duration, register: Note.LOW});
+                    notes.push({time: note.time, noteId: index.lowIdx, duration: note.duration, register: Register.LOW});
                 }
             });
 
