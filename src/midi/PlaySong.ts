@@ -55,6 +55,13 @@ async function loadSong(song: string): Promise<SongReady>
     const sequence = await mm.urlToNoteSequence(song);
     Log.info("MIDI track loaded. Total time is", sequence.totalTime);
 
+    // Max velocity is 127, crush it down to have a max of 20.
+    const newMax = 20;
+
+    sequence.notes.forEach(value => {
+        value.velocity = (value.velocity as number / 127) * newMax;
+    });
+
     const player = new SoundFontPlayer('https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus',
         undefined, undefined, undefined, undefined);
 
