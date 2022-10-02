@@ -28,7 +28,17 @@ instrument(new AudioContext(), 'trumpet', {soundfont: "MusyngKite", gain: 1})
 
 
 export class NotePlayer extends GlobalSystem {
-    notes: Note[] = [
+    lowerNotes: Note[] = [
+        new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "F#3"),
+        new Note([Key.KeyQ, Key.KeyE], "G3"),
+        new Note([Key.KeyW, Key.KeyE], "G#3"),
+        new Note([Key.KeyQ, Key.KeyW], "A3"),
+        new Note([Key.KeyQ], "A#3"),
+        new Note([Key.KeyW], "B3"),
+        new Note([], "C4"),
+    ];
+
+    upperNotes: Note[] = [
         new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "C#4"),
         new Note([Key.KeyQ, Key.KeyE], "D4"),
         new Note([Key.KeyW, Key.KeyE], "D#4"),
@@ -44,12 +54,14 @@ export class NotePlayer extends GlobalSystem {
     {
         if (this.getScene().getGame().keyboard.isKeyDown(Key.Space)) {
             Tone.start().then(() => {
-                const note_down = this.notes.map(note => note.keys.every(k => this.getScene().getGame().keyboard.isKeyDown(k)));
+                const notes = (this.getScene().getGame().keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight)) ? this.upperNotes : this.lowerNotes;
+                const note_down = notes.map(note => note.keys.every(k => this.getScene().getGame().keyboard.isKeyDown(k)));
                 for (let i = 0; i < note_down.length; i++) {
                     if (note_down[i]) {
                         // synth.triggerAttack(this.notes[i].music_note);
                         trumpet?.stop();
-                        trumpet?.play(this.notes[i].music_note, undefined)
+                        trumpet?.play(notes[i].music_note, undefined)
+                        console.log(notes[i].music_note)
 
                         break;
                     }
