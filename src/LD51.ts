@@ -33,7 +33,7 @@ export class LD51 extends Game
         this.addResource("note", new SpriteSheet(note, 14, 15));
         this.addResource("note-sustain", new SpriteSheet(note_sustain, 1, 5));
         this.addResource("note-tail", new SpriteSheet(note_tail, 4, 5));
-        this.addResource("selected-combo", new SpriteSheet(selected_combo, 24, 24))
+        this.addResource("selected-combo", new SpriteSheet(selected_combo, 24, 24));
         this.addResource("selected-ring", new SpriteSheet(selected_ring, 28, 28));
 
         this.resourceLoader.loadAll().then(() => {
@@ -64,7 +64,7 @@ class MainScene extends Scene
             const bar = bars[Math.floor(Math.random() * 7)];
             const position = Math.floor(Math.random() * 240);
             const register = Math.floor(Math.random() * 2);
-            const duration = Math.floor(Math.random() * 80);
+            const duration = Math.ceil(Math.random() * 80);
 
             const note = new NoteData(register, duration, false);
             createNote(this, note, bar, position);
