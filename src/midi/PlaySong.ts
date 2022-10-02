@@ -1,4 +1,4 @@
-import {Component, Log, System} from "lagom-engine";
+import {Component, Key, Log, System} from "lagom-engine";
 import * as Tone from "tone";
 import {MidiTrack} from "./MidiTypes";
 
@@ -21,6 +21,28 @@ export class Song extends Component
 export class PlaySong extends Component
 {
 }
+
+export class IsPlaying extends Component
+{
+}
+
+export class SongStarter extends System<[Song]>
+{
+    types = () => [Song];
+
+    update(delta: number): void
+    {
+        this.runOnEntities((entity, song) => {
+            if (entity.scene.game.keyboard.isKeyPressed(Key.Space) && entity.getComponent(PlaySong) === null
+                && entity.getComponent(IsPlaying) === null)
+            {
+                entity.addComponent(new PlaySong());
+                entity.addComponent(new IsPlaying());
+            }
+        });
+    }
+}
+
 
 export class SongManager extends System<[Song, PlaySong]>
 {
