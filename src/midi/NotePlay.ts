@@ -1,24 +1,44 @@
 import {Button, Component, Entity, Game, GlobalSystem, Key, Sprite, System} from "lagom-engine";
 import * as Tone from 'tone';
+import {Synth} from "tone";
+import {instrument, Player} from "soundfont-player"
 
 class Note extends Component {
-    key: Key[];
+    keys: Key[];
     music_note: string;
-    on: boolean;
 
     constructor(key: Key[], music_note: string) {
         super();
-        this.key = key;
+        this.keys = key;
         this.music_note = music_note;
-        this.on = false;
     }
 }
 
-const synth = new Tone.Synth().toDestination();
+/* Tone.js */
+const synthOptions = Synth.getDefaults();
+synthOptions.envelope.release = 0.5;
+synthOptions.volume = -10;
+
+const synth = new Tone.Synth(synthOptions).toDestination();
+
+/* SoundFont-player */
+let trumpet: Player | undefined = undefined;
+instrument(new AudioContext(), 'trumpet', {soundfont: "MusyngKite", gain: 1})
+    .then((player: Player) => trumpet = player);
 
 
 export class NotePlayer extends GlobalSystem {
-    notes: Note[] = [
+    lowerNotes: Note[] = [
+        new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "F#3"),
+        new Note([Key.KeyQ, Key.KeyE], "G3"),
+        new Note([Key.KeyW, Key.KeyE], "G#3"),
+        new Note([Key.KeyQ, Key.KeyW], "A3"),
+        new Note([Key.KeyQ], "A#3"),
+        new Note([Key.KeyW], "B3"),
+        new Note([], "C4"),
+    ];
+
+    upperNotes: Note[] = [
         new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "C#4"),
         new Note([Key.KeyQ, Key.KeyE], "D4"),
         new Note([Key.KeyW, Key.KeyE], "D#4"),
@@ -28,28 +48,29 @@ export class NotePlayer extends GlobalSystem {
         new Note([], "G4"),
     ];
 
-    currentNote?:Note = undefined;
-
     types = () => [];
 
     update(delta: number): void
     {
         if (this.getScene().getGame().keyboard.isKeyDown(Key.Space)) {
-            this.notes.some(note => {
-                if (note.key.every(k => this.getScene().getGame().keyboard.isKeyDown(k)) && !note.on && !this.currentNote) {
-                    this.notes.forEach(note => note.on = false);
-                    synth.triggerAttack(note.music_note);
-                    this.currentNote = note;
-                    // note.on = true;
-                    return true;
-                } else if (note.key.some(k => this.getScene().getGame().keyboard.isKeyReleased(k)) && this.currentNote) {
-                    this.currentNote = undefined;
+            Tone.start().then(() => {
+                const notes = (this.getScene().getGame().keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight)) ? this.upperNotes : this.lowerNotes;
+                const note_down = notes.map(note => note.keys.every(k => this.getScene().getGame().keyboard.isKeyDown(k)));
+                for (let i = 0; i < note_down.length; i++) {
+                    if (note_down[i]) {
+                        // synth.triggerAttack(this.notes[i].music_note);
+                        trumpet?.stop();
+                        trumpet?.play(notes[i].music_note, undefined)
+                        console.log(notes[i].music_note)
+
+                        break;
+                    }
                 }
             });
+
         } else {
-            synth.triggerRelease(Tone.now());
-            // this.notes.forEach(note => note.on = false);
-            this.currentNote = undefined;
+            // synth.triggerRelease(Tone.now());
+            trumpet?.stop();
         }
     }
 }
