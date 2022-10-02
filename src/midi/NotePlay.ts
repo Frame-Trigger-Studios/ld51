@@ -1,20 +1,25 @@
 import {Button, Component, Entity, Game, GlobalSystem, Key, Sprite, System} from "lagom-engine";
 import * as Tone from 'tone';
+import {Synth} from "tone";
 
 class Note extends Component {
-    key: Key[];
+    keys: Key[];
     music_note: string;
     on: boolean;
 
     constructor(key: Key[], music_note: string) {
         super();
-        this.key = key;
+        this.keys = key;
         this.music_note = music_note;
         this.on = false;
     }
 }
 
-const synth = new Tone.Synth().toDestination();
+const synthOptions = Synth.getDefaults();
+synthOptions.envelope.release = 0.5;
+synthOptions.volume = -10;
+
+const synth = new Tone.Synth(synthOptions).toDestination();
 
 
 export class NotePlayer extends GlobalSystem {
@@ -28,28 +33,24 @@ export class NotePlayer extends GlobalSystem {
         new Note([], "G4"),
     ];
 
-    currentNote?:Note = undefined;
-
     types = () => [];
 
     update(delta: number): void
     {
         if (this.getScene().getGame().keyboard.isKeyDown(Key.Space)) {
-            this.notes.some(note => {
-                if (note.key.every(k => this.getScene().getGame().keyboard.isKeyDown(k)) && !note.on && !this.currentNote) {
-                    this.notes.forEach(note => note.on = false);
-                    synth.triggerAttack(note.music_note);
-                    this.currentNote = note;
-                    // note.on = true;
-                    return true;
-                } else if (note.key.some(k => this.getScene().getGame().keyboard.isKeyReleased(k)) && this.currentNote) {
-                    this.currentNote = undefined;
+            Tone.start().then(() => {
+                const note_down = this.notes.map(note => note.keys.every(k => this.getScene().getGame().keyboard.isKeyDown(k)));
+                for (let i = 0; i < note_down.length; i++) {
+                    if (note_down[i]) {
+                        this.notes.forEach(note => note.on = false);
+                        synth.triggerAttack(this.notes[i].music_note);
+                        break;
+                    }
                 }
             });
+
         } else {
             synth.triggerRelease(Tone.now());
-            // this.notes.forEach(note => note.on = false);
-            this.currentNote = undefined;
         }
     }
 }
