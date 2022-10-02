@@ -1,6 +1,7 @@
 import { Entity, Game, Scene, Sprite, SpriteSheet, Mouse, Component, TextDisp, GlobalSystem } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
-
+import {switzerland} from "./midi/Songs";
+import {Song, SongLoader, SongStarter} from "./midi/PlaySong";
 import background from "./art/bg.png";
 import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
@@ -68,6 +69,12 @@ class MainScene extends Scene
             .addComponent(new RestartButton());
 
         this.addGlobalSystem(new ClickListener());
+
+        this.addSystem(new SongLoader());
+        this.addSystem(new SongStarter());
+
+        const e = this.addEntity(new Entity("switzerland"));
+        e.addComponent(new Song(switzerland, 3));
     }
 }
 

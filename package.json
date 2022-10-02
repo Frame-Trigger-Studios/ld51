@@ -12,6 +12,8 @@
     "lint:fix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
+    "@magenta/music": "^1.23.1",
+    "babel-preset-react-app": "^10.0.1",
     "lagom-engine": "file:../lagom-engine",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
