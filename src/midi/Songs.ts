@@ -4712,7 +4712,7 @@ export const switzerland: MidiTrack = {
             "instrument": {
                 "family": "organ",
                 "number": 17,
-                "name": "percussive organ"
+                "name": "percussive_organ"
             },
             "name": "R.H.                ",
             "notes": [
@@ -6364,7 +6364,7 @@ export const switzerland: MidiTrack = {
             "instrument": {
                 "family": "organ",
                 "number": 18,
-                "name": "rock organ"
+                "name": "rock_organ"
             },
             "name": "L.H.                ",
             "notes": [
@@ -7341,7 +7341,7 @@ export const switzerland: MidiTrack = {
             "instrument": {
                 "family": "bass",
                 "number": 33,
-                "name": "electric bass (finger)"
+                "name": "electric_bass_finger"
             },
             "name": "BASS                ",
             "notes": [
@@ -8003,7 +8003,7 @@ export const switzerland: MidiTrack = {
             "instrument": {
                 "family": "brass",
                 "number": 60,
-                "name": "french horn"
+                "name": "french_horn"
             },
             "name": "MELODY              ",
             "notes": [
@@ -9435,7 +9435,7 @@ export const switzerland: MidiTrack = {
             "instrument": {
                 "family": "organ",
                 "number": 18,
-                "name": "rock organ"
+                "name": "rock_organ"
             },
             "name": "New Track           ",
             "notes": [
@@ -11087,7 +11087,7 @@ export const switzerland: MidiTrack = {
             "instrument": {
                 "family": "organ",
                 "number": 20,
-                "name": "reed organ"
+                "name": "reed_organ"
             },
             "name": "New Track           ",
             "notes": [
@@ -12049,4 +12049,4 @@ export const switzerland: MidiTrack = {
             "endOfTrackTicks": 15536
         }
     ]
-} as unknown as MidiTrack;
+};

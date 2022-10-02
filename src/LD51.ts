@@ -1,7 +1,7 @@
 import {Entity, Game, Scene} from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {switzerland} from "./midi/Songs";
-import {Song, SongManager, SongStarter} from "./midi/PlaySong";
+import {Song, SongLoader, SongStarter} from "./midi/PlaySong";
 
 export class LD51 extends Game
 {
@@ -19,10 +19,11 @@ class MainScene extends Scene
         super.onAdded();
         this.addGlobalSystem(new NotePlayer());
 
-        this.addSystem(new SongManager());
+        this.addSystem(new SongLoader());
         this.addSystem(new SongStarter());
 
         const e = this.addEntity(new Entity("switzerland"));
-        e.addComponent(new Song(switzerland, 0));
+        e.addComponent(new Song(switzerland, 3));
     }
 }
+

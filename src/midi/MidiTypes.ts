@@ -1,3 +1,5 @@
+import {InstrumentName} from "soundfont-player";
+
 export interface TempoEvent
 {
     ticks: number;
@@ -26,6 +28,7 @@ export interface MetaEvent
     ticks: number;
 }
 
+
 export type MidiTrack = {
     // the transport and timing data
     header: {
@@ -39,29 +42,30 @@ export type MidiTrack = {
                                           // this is read only
     },
 
-    duration: number,                   // the time until the last note finishes
+    duration?: number,                   // the time until the last note finishes
 
     // an array of midi tracks
-    tracks: [
+    tracks:
         {
             name: string,                   // the track name if one was given
 
             channel: number,                // channel
                                             // the ID for this channel; 9 and 10 are
                                             // reserved for percussion
-            notes: [
+            pitchBends: any[],
+            endOfTrackTicks: number,
+            notes:
                 {
-                    midi: number,               // midi number, e.g. 60
-                    time: number,               // time in seconds
-                    ticks: number,              // time in ticks
+                    duration: number,           // duration in seconds between noteOn and noteOff
                     durationTicks?: number,
+                    midi: number,               // midi number, e.g. 60
                     name: string,               // note name, e.g. "C4",
+                    ticks: number,              // time in ticks
+                    time: number,               // time in seconds
+                    velocity: number,           // normalized 0-1 velocity
                     pitch?: string,              // the pitch class, e.g. "C",
                     octave?: number,            // the octave, e.g. 4
-                    velocity: number,           // normalized 0-1 velocity
-                    duration: number,           // duration in seconds between noteOn and noteOff
-                }
-            ],
+                }[],
 
             // midi control changes
             controlChanges: {
@@ -79,9 +83,8 @@ export type MidiTrack = {
             instrument: {                   // and object representing the program change events
                 number: number,              // the instrument number 0-127
                 family: string,               // the family of instruments, read only.
-                name: string,                // the name of the instrument
+                name: InstrumentName,                // the name of the instrument
                 percussion?: boolean,          // if the instrument is a percussion instrument
             },
-        }
-    ]
+        }[]
 };
