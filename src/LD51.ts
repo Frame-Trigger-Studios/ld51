@@ -30,7 +30,7 @@ export class LD51 extends Game
         this.addResource("note-tail", new SpriteSheet(note_tail, 4, 5));
 
         this.resourceLoader.loadAll().then(() => {
-            this.setScene(new MainScene(this));
+            this.setScene(new MainMenuScene(this));
         });
     }
 
@@ -72,13 +72,17 @@ class MainScene extends Scene
     }
 }
 
-class ClickAction extends Component {
-    constructor(readonly action: number) {
+class ClickAction extends Component
+{
+    constructor(readonly action: number)
+    {
         super();
     }
 
-    onAction() {
-        switch (this.action) {
+    onAction()
+    {
+        switch (this.action)
+        {
             // Start game
             case 0:
                 {
@@ -87,28 +91,22 @@ class ClickAction extends Component {
                     game.setScene(new MainScene(game));
                     break;
                 }
-            // Restart
-            case 1:
-                {
-                    // todo reset anything needed
-                    // commented out until its not annoying
-                    //const game = this.getScene().getGame();
-                    //game.setScene(new MainMenuScene(game));
-
-                    console.log("Restart game");
-                    break;
-                }
         }
     }
 }
 
-class ClickListener extends GlobalSystem {
+class ClickListener extends GlobalSystem
+{
     types = () => [ClickAction];
 
-    update(delta: number): void {
-        this.runOnComponents((actions: ClickAction[]) => {
-            if (this.getScene().getGame().mouse.isButtonPressed(0)) {
-                for (const action of actions) {
+    update(delta: number): void
+    {
+        this.runOnComponents((actions: ClickAction[]) =>
+        {
+            if (this.getScene().getGame().mouse.isButtonPressed(0))
+            {
+                for (const action of actions)
+                {
                     action.onAction();
                     //button.destroy();
                 }
@@ -117,12 +115,14 @@ class ClickListener extends GlobalSystem {
     }
 }
 
-class MainMenuScene extends Scene {
+export class MainMenuScene extends Scene
+{
 
-    onAdded() {
+    onAdded()
+    {
         super.onAdded();
         this.addGUIEntity(new Entity("gameNameText"))
-            .addComponent(new TextDisp(screenWidth / 4, screenHeight / 4, "InsertGameNameHere", { fill: "white", fontSize: 40 }));
+            .addComponent(new TextDisp(screenWidth / 4, screenHeight / 4, "SNIP SNAP 2", { fill: "white", fontSize: 40 }));
 
         this.addGUIEntity(new Entity("playButton"))
             .addComponent(new PlayButton());
@@ -132,24 +132,33 @@ class MainMenuScene extends Scene {
 
 }
 
-class PlayButton extends TextDisp {
-    constructor() {
-        super(screenWidth / 3, screenHeight / 2, "PLAY", { fill: "white", fontSize: 20 });
+class PlayButton extends TextDisp
+{
+    constructor()
+    {
+        super(screenWidth / 4 + 10, screenHeight / 2, "CLICK TO START GAME", { fill: "white", fontSize: 20 });
     }
 
-    onAdded() {
+    onAdded()
+    {
         super.onAdded();
         this.getEntity().addComponent(new ClickAction(0));
     }
 }
 
 // Todo make restart sprite in top corner or something
-class RestartButton extends TextDisp {
-    constructor() {
-        super(screenWidth - 80, 10, "Restart", { fill: "white", fontSize: 15 });
+class RestartButton extends TextDisp
+{
+
+    constructor()
+    {
+        const restartButtonX = screenWidth - 80;
+        const restartButtonY = 10;
+        super(restartButtonX, restartButtonY, "Press 0 to restart", { fill: "white", fontSize: 10 });
     }
 
-    onAdded() {
+    onAdded()
+    {
         super.onAdded();
         this.getEntity().addComponent(new ClickAction(1));
     }
