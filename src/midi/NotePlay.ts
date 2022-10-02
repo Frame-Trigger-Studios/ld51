@@ -34,7 +34,7 @@ export class NotePlayer extends GlobalSystem
 {
     private trumpet: SoundFontPlayer | undefined;
 
-    private playing: number[] = [];
+    private playing: number = -1;
 
 
     constructor()
@@ -60,16 +60,10 @@ export class NotePlayer extends GlobalSystem
                 if (notes[i].keys.every(k => game.keyboard.isKeyDown(k)))
                 {
                     const note = notes[i].music_note;
-                    if (!this.playing.includes(note))
-                    {
-                        this.trumpet?.playNoteDown({program: 56, pitch: note});
-                        this.playing.push(note);
-                    }
-                    // console.log(notes[i]);
-                    // // synth.triggerAttack(this.notes[i].music_note);
-                    // trumpet?.stop();
-                    // trumpet?.play(notes[i].music_note, undefined)
-                    // console.log(notes[i].music_note)
+                    if (this.playing === note) break;
+                    if (this.playing !== -1) this.trumpet?.playNoteUp({program: 56, pitch: this.playing, endTime: 0.01});
+                    this.playing = note;
+                    this.trumpet?.playNoteDown({program: 56, pitch: note});
                     break;
                 }
             }
@@ -81,11 +75,8 @@ export class NotePlayer extends GlobalSystem
         }
         else
         {
-            // this.trumpet?.stop();
-            this.playing.forEach(value => {
-                this.trumpet?.playNoteUp({program: 56, pitch: value})
-            })
-            this.playing = [];
+            if (this.playing !== -1) this.trumpet?.playNoteUp({program: 56, pitch: this.playing, endTime: 0.01});
+            this.playing = -1;
         }
     }
 }
