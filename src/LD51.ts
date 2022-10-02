@@ -6,7 +6,7 @@ import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
 
 import note_tail from "./art/note-tail.png";
-import {getHighNote, getLowNote} from "./notes";
+import {createNote, getHighNoteSprite, getLowNoteSprite} from "./notes";
 
 export enum Layers
 {
@@ -39,6 +39,7 @@ class MainScene extends Scene
     onAdded()
     {
         super.onAdded();
+
         const background = this.addEntity(new Entity("background", 0, 0, Layers.Background));
         background.addComponent(new Sprite(this.game.getResource("background").textureFromIndex(0)));
 
@@ -54,9 +55,9 @@ class MainScene extends Scene
             const bar = bars[Math.floor(Math.random() * 7)];
             const position = Math.floor(Math.random() * 240);
             const coinflip = Math.floor(Math.random() * 2);
+            const sprite = coinflip === 0 ? getLowNoteSprite(this) : getHighNoteSprite(this);
 
-            const note1 = bar.addChild(new Entity("note1", position, 0, Layers.Notes));
-            note1.addComponent(coinflip === 0 ? getLowNote(this) : getHighNote(this));
+            createNote(bar, position, 1, sprite);
         }
 
         this.addGlobalSystem(new NotePlayer());
