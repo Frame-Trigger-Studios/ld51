@@ -1,4 +1,4 @@
-import {Component, Entity, Key, Log, System} from "lagom-engine";
+import {Component, Entity, Key, Log, System, Timer, TimerSystem} from "lagom-engine";
 import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
@@ -32,6 +32,10 @@ export class SongReady extends Component
 
 }
 
+export class FirstNote extends Component {}
+
+const NOTE_SPEED = 50;
+
 export class SongStarter extends System<[SongReady]>
 {
     types = () => [SongReady];
@@ -44,7 +48,8 @@ export class SongStarter extends System<[SongReady]>
             {
                 entity.addComponent(new IsPlaying());
                 entity.addComponent(new SongTime(0));
-                song.player.start(song.sequence);
+                entity.addComponent(new Timer(4450, null, false))
+                      .onTrigger.register(() => song.player.start(song.sequence));
             }
         });
     }
@@ -199,11 +204,20 @@ export class NoteSpawner extends System<[LeadTrack, SongTime, IsPlaying, SongRea
         this.runOnEntities((entity, leadTrack, songTime, _, Song, position) => {
             const time = songTime.time/1000;
 
+            if (position.pos >= leadTrack.notes.length) {
+                // we're done;
+                return;
+            }
+
             if (leadTrack.notes[position.pos].time <= time) {
                 const note = leadTrack.notes[position.pos]
                 const noteData = new NoteData(note.register, note.duration, false);
-                createNote(this.getScene(), noteData, this.bars[note.noteId], 240);
+                const noteEntity = createNote(this.getScene(), noteData, this.bars[note.noteId], 240);
                 position.pos++;
+
+                if (position.pos == 0) {
+                    noteEntity.addComponent(new FirstNote())
+                }
             } else {
                 // no notes to spawn at this time
             }
@@ -217,7 +231,7 @@ export class NoteMover extends System<[NoteData]> {
 
     update(delta: number): void {
         this.runOnEntities((entity, noteData) => {
-            entity.transform.x -= 0.3;
+            entity.transform.x -= NOTE_SPEED * (delta/1000);
         });
     }
 }
