@@ -177,8 +177,6 @@ export class SongLoader extends System<[LoadSong]>
             });
 
             entity.addComponent(new LeadTrack(notes));
-            Log.info(notes);
-//
             toLoad.destroy();
         });
     }
