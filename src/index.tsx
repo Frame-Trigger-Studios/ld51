@@ -7,12 +7,14 @@ import {LD51} from "./LD51";
 
 const game = new LD51();
 
-const App = () => (
-    <div style={{display: "flex", height: "100%", alignItems: "center", justifyContent: "center"}}>
-        <LagomGameComponent game={game}/>
-    </div>
-);
+game.load().then(() => {
+    const App = () => (
+        <div style={{display: "flex", height: "100%", alignItems: "center", justifyContent: "center"}}>
+            <LagomGameComponent game={game}/>
+        </div>
+    );
 
-ReactDOM.render(
-    <App/>,
-    document.getElementById("root"));
+    ReactDOM.render(
+        <App/>,
+        document.getElementById("root"));
+});
