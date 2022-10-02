@@ -52,7 +52,7 @@ export class LD51 extends Game
         this.addResource("selected-combo", new SpriteSheet(selected_combo, 24, 24));
         this.addResource("selected-ring", new SpriteSheet(selected_ring, 28, 28));
         this.addResource("trumpet", new SpriteSheet(trumpet, 105, 50));
-        this.addResource("trumpet-beep", new SpriteSheet(trumpet_beep, 29, 43));
+        this.addResource("trumpet-doot", new SpriteSheet(trumpet_beep, 29, 43));
 
         this.resourceLoader.loadAll().then(() => {
             this.setScene(new MainScene(this));

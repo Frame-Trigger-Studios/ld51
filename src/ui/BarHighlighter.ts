@@ -23,10 +23,12 @@ export class BarHighlighter extends GlobalSystem {
         highlightEntity.addComponent(new DestroyMeNextFrame());
         ringEntity.addComponent(new DestroyMeNextFrame());
 
-        let config
-        if (isLower) {
-            config = {}
-        } else {
+        let config = {}
+        let dootx = 110
+        let dooty = 232
+        if (!isLower) {
+            dootx = 88
+            dooty = 180
             config = {
                 rotation: -0.5,
                 xOffset: -20
@@ -36,6 +38,13 @@ export class BarHighlighter extends GlobalSystem {
         const trumpet = scene.addEntity(new Entity("trumpet", 0, 250, Layers.Background));
         trumpet.addComponent(new Sprite(scene.game.getResource("trumpet").texture(position, 0), config));
         trumpet.addComponent(new DestroyMeNextFrame());
+
+        if (scene.game.keyboard.isKeyDown(Key.Space)) {
+            const doot = scene.addEntity(new Entity("doot", dootx, dooty, Layers.Background));
+            doot.addComponent(new Sprite(scene.game.getResource("trumpet-doot").texture(1, 0), config));
+            doot.addComponent(new DestroyMeNextFrame());
+        }
+
     };
 
     types = () => [];
