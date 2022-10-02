@@ -6,7 +6,7 @@ import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
 
 import note_tail from "./art/note-tail.png";
-import {createNote, getHighNoteSprite, getLowNoteSprite} from "./notes";
+import {createNote} from "./notes";
 
 export enum Layers
 {
@@ -58,9 +58,9 @@ class MainScene extends Scene
             const bar = bars[Math.floor(Math.random() * 7)];
             const position = Math.floor(Math.random() * 240);
             const coinflip = Math.floor(Math.random() * 2);
-            const sprite = coinflip === 0 ? getLowNoteSprite(this) : getHighNoteSprite(this);
+            const duration = Math.floor(Math.random() * 80);
 
-            createNote(bar, position, 1, sprite);
+            createNote(this, coinflip, bar, position, duration);
         }
 
         this.addGlobalSystem(new NotePlayer());
@@ -111,7 +111,7 @@ class ClickListener extends GlobalSystem
                     //button.destroy();
                 }
             }
-        })
+        });
     }
 }
 
