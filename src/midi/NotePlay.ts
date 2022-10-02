@@ -33,8 +33,8 @@ export class NotePlayer extends GlobalSystem {
     lowerNotes: Note[] = [
         new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "F#3"),
         new Note([Key.KeyQ, Key.KeyE], "G3"),
-        new Note([Key.KeyQ, Key.KeyW], "G#3"),
-        new Note([Key.KeyW, Key.KeyE], "A3"),
+        new Note([Key.KeyW, Key.KeyE], "G#3"),
+        new Note([Key.KeyQ, Key.KeyW], "A3"),
         new Note([Key.KeyQ], "A#3"),
         new Note([Key.KeyW], "B3"),
         new Note([], "C4"),
@@ -43,8 +43,8 @@ export class NotePlayer extends GlobalSystem {
     upperNotes: Note[] = [
         new Note([Key.KeyQ, Key.KeyW, Key.KeyE], "C#4"),
         new Note([Key.KeyQ, Key.KeyE], "D4"),
-        new Note([Key.KeyQ, Key.KeyW], "D#4"),
-        new Note([Key.KeyW, Key.KeyE], "E4"),
+        new Note([Key.KeyW, Key.KeyE], "D#4"),
+        new Note([Key.KeyQ, Key.KeyW], "E4"),
         new Note([Key.KeyQ], "F4"),
         new Note([Key.KeyW], "F#4"),
         new Note([], "G4"),
