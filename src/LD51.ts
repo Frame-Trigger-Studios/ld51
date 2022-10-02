@@ -1,9 +1,11 @@
-import { Entity, Game, Scene, Sprite, SpriteSheet, Mouse, Component, TextDisp, GlobalSystem } from "lagom-engine";
+import { Entity, Game, Scene, Sprite, SpriteSheet, Mouse, Component, TextDisp, GlobalSystem, TimerSystem } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {LoadSong, SongLoader, SongStarter} from "./midi/PlaySong";
 import background from "./art/bg.png";
 import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
+import selected_combo from "./art/selected.png";
+import selected_ring from "./art/rings.png";
 
 import note_tail from "./art/note-tail.png";
 import {createNote, Note, NoteData} from "./notes";
@@ -29,6 +31,8 @@ export class LD51 extends Game
         this.addResource("note", new SpriteSheet(note, 14, 15));
         this.addResource("note-sustain", new SpriteSheet(note_sustain, 1, 5));
         this.addResource("note-tail", new SpriteSheet(note_tail, 4, 5));
+        this.addResource("selected-combo", new SpriteSheet(selected_combo, 24, 24))
+        this.addResource("selected-ring", new SpriteSheet(selected_ring, 56, 28));
 
         this.resourceLoader.loadAll().then(() => {
             this.setScene(new MainScene(this));
@@ -70,10 +74,11 @@ class MainScene extends Scene
 
         this.addGlobalSystem(new NotePlayer());
 
-        this.addGUIEntity(new Entity("restartButton", 0, 0, Layers.GUI))
-            .addComponent(new RestartButton());
+        this.addGUIEntity(new Entity("restartText", 0, 0, Layers.GUI))
+            .addComponent(new RestartText());
 
         this.addGlobalSystem(new ClickListener());
+        this.addGlobalSystem(new TimerSystem());
 
         this.addSystem(new SongLoader());
         this.addSystem(new SongStarter());
@@ -158,14 +163,13 @@ class PlayButton extends TextDisp
 }
 
 // Todo make restart sprite in top corner or something
-class RestartButton extends TextDisp
+class RestartText extends TextDisp
 {
-
     constructor()
     {
-        const restartButtonX = screenWidth - 80;
-        const restartButtonY = 10;
-        super(restartButtonX, restartButtonY, "Press 0 to restart", { fill: "white", fontSize: 10 });
+        const restartX = screenWidth - 85;
+        const restartY = 10;
+        super(restartX, restartY, "Press '0' to restart", { fill: "white", fontSize: 10 });
     }
 
     onAdded()
