@@ -14,12 +14,11 @@ export class Note extends Component {
 const synthOptions = Synth.getDefaults();
 synthOptions.envelope.release = 0.5;
 synthOptions.volume = -10;
-
 const synth = new Tone.Synth(synthOptions).toDestination();
 
 /* SoundFont-player */
 let trumpet: Player | undefined = undefined;
-instrument(new AudioContext(), 'trumpet', {soundfont: "MusyngKite", gain: 1})
+instrument(new AudioContext(), 'trumpet')
     .then((player: Player) => trumpet = player);
 
 export const lowerNotes: Note[] = [
@@ -61,7 +60,7 @@ export class NotePlayer extends GlobalSystem {
                         console.log(notes[i].music_note)
                         break;
                     }
-                } 
+                }
             });
 
         }
@@ -73,5 +72,3 @@ export class NotePlayer extends GlobalSystem {
         }
     }
 }
-
-
