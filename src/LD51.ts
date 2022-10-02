@@ -6,6 +6,8 @@ import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
 import selected_combo from "./art/selected.png";
 import selected_ring from "./art/rings.png";
+import trumpet from "./art/trumpet.png";
+import trumpet_beep from "./art/trumpet-beep.png";
 
 import note_tail from "./art/note-tail.png";
 import {createNote, Register, NoteData} from "./ui/notes";
@@ -35,6 +37,8 @@ export class LD51 extends Game
         this.addResource("note-tail", new SpriteSheet(note_tail, 4, 5));
         this.addResource("selected-combo", new SpriteSheet(selected_combo, 24, 24));
         this.addResource("selected-ring", new SpriteSheet(selected_ring, 28, 28));
+        this.addResource("trumpet", new SpriteSheet(trumpet, 105, 50));
+        this.addResource("trumpet-beep", new SpriteSheet(trumpet_beep, 29, 43));
 
         this.resourceLoader.loadAll().then(() => {
             this.setScene(new MainScene(this));

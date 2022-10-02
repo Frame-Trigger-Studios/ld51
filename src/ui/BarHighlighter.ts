@@ -20,6 +20,9 @@ export class BarHighlighter extends GlobalSystem {
         highlightEntity.addComponent(new DestroyMeNextFrame());
         ringEntity.addComponent(new DestroyMeNextFrame());
 
+        const trumpet = scene.addEntity(new Entity("trumpet", 0, 250, Layers.Background));
+        trumpet.addComponent(new Sprite(scene.game.getResource("trumpet").texture(position, 0)));
+        trumpet.addComponent(new DestroyMeNextFrame());
     };
 
     types = () => [];
