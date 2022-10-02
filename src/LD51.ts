@@ -6,7 +6,7 @@ import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
 
 import note_tail from "./art/note-tail.png";
-import {createNote} from "./notes";
+import {createNote, Note, NoteData} from "./notes";
 import {switzerland} from "./midi/Songs";
 
 export enum Layers
@@ -48,7 +48,7 @@ class MainScene extends Scene
 
         // Entity for each of the 7 bars
         const bars = [];
-        for (let i = 1; i <= 7; i++) {
+        for (let i = 7; i > 0; i--) {
             const bar = this.addEntity(new Entity("notes", 240, 40 * i, Layers.Background));
             bars.push(bar);
         }
@@ -60,8 +60,13 @@ class MainScene extends Scene
             const coinflip = Math.floor(Math.random() * 2);
             const duration = Math.floor(Math.random() * 80);
 
-            createNote(this, coinflip, bar, position, duration);
+            const note = new NoteData(coinflip, duration, false);
+            createNote(this, note, bar, position);
         }
+
+        // Playing note.
+        const note = new NoteData(Note.LOW, 50, true);
+        createNote(this, note, bars[0], 0);
 
         this.addGlobalSystem(new NotePlayer());
 
