@@ -1,8 +1,9 @@
-import {Component, Key, Log, System} from "lagom-engine";
+import {Component, Entity, Key, Log, System} from "lagom-engine";
 import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
-import {LeadNote, LeadTrack} from "./PlayableTrack";
+import {LeadNote, LeadTrack, SongTime, TrackPosition} from "./PlayableTrack";
+import {createNote, Register, NoteData} from "../ui/notes";
 
 export class LoadSong extends Component
 {
@@ -42,6 +43,7 @@ export class SongStarter extends System<[SongReady]>
                 && entity.getComponent(IsPlaying) === null)
             {
                 entity.addComponent(new IsPlaying());
+                entity.addComponent(new SongTime(0));
                 song.player.start(song.sequence);
             }
         });
@@ -130,7 +132,6 @@ const noteLut: Map<string, { lowIdx: number, highIdx: number }> = new Map([
         highIdx: 4
     }]]);
 
-
 export class SongLoader extends System<[LoadSong]>
 {
     types = () => [LoadSong];
@@ -175,16 +176,55 @@ export class SongLoader extends System<[LoadSong]>
 
                 // TODO we can do logic for the two notes that overlap if we want to, we know the octave
                 //  with noteComps[2]
-                if (index.lowIdx === -1)
-                {
-                    notes.push({time: note.time, noteId: index.highIdx, duration: note.duration, register: "high"});
+                if (index.lowIdx === -1) {
+                    notes.push({time: note.time, noteId: index.highIdx, duration: note.duration, register: Register.HIGH});
                 } else {
-                    notes.push({time: note.time, noteId: index.lowIdx, duration: note.duration, register: "low"});
+                    notes.push({time: note.time, noteId: index.lowIdx, duration: note.duration, register: Register.LOW});
                 }
             });
 
             entity.addComponent(new LeadTrack(notes));
+            entity.addComponent(new SongTime(0));
+            entity.addComponent(new TrackPosition(0));
             toLoad.destroy();
+            console.log(notes);
+
+
+            console.log(notes.length)
+        });
+    }
+}
+
+export class NoteSpawner extends System<[LeadTrack, SongTime, IsPlaying, SongReady, TrackPosition]> {
+    constructor(private bars: Entity[]) {
+        super();
+    }
+
+    types = () => [LeadTrack, SongTime, IsPlaying, SongReady, TrackPosition];
+
+    update(delta: number): void {
+        this.runOnEntities((entity, leadTrack, songTime, _, Song, position) => {
+            const time = songTime.time/1000;
+
+            if (leadTrack.notes[position.pos].time <= time) {
+                const note = leadTrack.notes[position.pos]
+                const noteData = new NoteData(note.register, note.duration, false);
+                createNote(this.getScene(), noteData, this.bars[note.noteId], 240);
+                position.pos++;
+            } else {
+                // no notes to spawn at this time
+            }
+            songTime.time += delta;
+        });
+    }
+}
+
+export class NoteMover extends System<[NoteData]> {
+    types = () => [NoteData];
+
+    update(delta: number): void {
+        this.runOnEntities((entity, noteData) => {
+            entity.transform.x -= 0.3;
         });
     }
 }
