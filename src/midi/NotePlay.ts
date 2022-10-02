@@ -26,6 +26,7 @@ export const lowerNotes: Note[] = [
     new Note([Key.KeyQ, Key.KeyE], "G3"),
     new Note([Key.KeyW, Key.KeyE], "G#3"),
     new Note([Key.KeyQ, Key.KeyW], "A3"),
+    new Note([Key.KeyE], "A3"),
     new Note([Key.KeyQ], "A#3"),
     new Note([Key.KeyW], "B3"),
     new Note([], "C4"),
@@ -36,6 +37,7 @@ export const upperNotes: Note[] = [
     new Note([Key.KeyQ, Key.KeyE], "D4"),
     new Note([Key.KeyW, Key.KeyE], "D#4"),
     new Note([Key.KeyQ, Key.KeyW], "E4"),
+    new Note([Key.KeyE], "E4"),
     new Note([Key.KeyQ], "F4"),
     new Note([Key.KeyW], "F#4"),
     new Note([], "G4"),
@@ -52,6 +54,7 @@ export class NotePlayer extends GlobalSystem {
                 const notes = (game.keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight)) ? upperNotes : lowerNotes;
 
                 for (let i = 0; i < notes.length; i++) {
+
                     if (notes[i].keys.every(k => game.keyboard.isKeyDown(k))) {
                         console.log(notes[i]);
                         // synth.triggerAttack(this.notes[i].music_note);

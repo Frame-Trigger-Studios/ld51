@@ -8,8 +8,11 @@ export class BarHighlighter extends GlobalSystem {
     addNoteHighlight = (isLower: boolean, position: number): void => {
         const scene = this.getScene();
 
-        const highlightEntity = scene.addEntity(new Entity("highlight", 228, 28 + ((6 - position) * 40), Layers.Background));
-        const ringEntity = scene.addEntity(new Entity("highlight", 226, 26 + ((6 - position) * 40), Layers.Background));
+        let circlePosition = position;
+        if (position < 4) circlePosition += 1;
+
+        const highlightEntity = scene.addEntity(new Entity("highlight", 228, 28 + ((7 - circlePosition) * 40), Layers.Background));
+        const ringEntity = scene.addEntity(new Entity("highlight", 226, 26 + ((7 - circlePosition) * 40), Layers.Background));
         if (isLower) {
             ringEntity.addComponent(new Sprite(scene.game.getResource("selected-ring").texture(0, 0)));
             highlightEntity.addComponent(new Sprite(scene.game.getResource("selected-combo").texture(0, 0)));
@@ -20,8 +23,18 @@ export class BarHighlighter extends GlobalSystem {
         highlightEntity.addComponent(new DestroyMeNextFrame());
         ringEntity.addComponent(new DestroyMeNextFrame());
 
+        let config
+        if (isLower) {
+            config = {}
+        } else {
+            config = {
+                rotation: -0.5,
+                xOffset: -20
+            }
+        }
+
         const trumpet = scene.addEntity(new Entity("trumpet", 0, 250, Layers.Background));
-        trumpet.addComponent(new Sprite(scene.game.getResource("trumpet").texture(position, 0)));
+        trumpet.addComponent(new Sprite(scene.game.getResource("trumpet").texture(position, 0), config));
         trumpet.addComponent(new DestroyMeNextFrame());
     };
 
@@ -41,6 +54,7 @@ export class BarHighlighter extends GlobalSystem {
         }
 
         for (let i = 0; i < notes.length; i++) {
+
             if (notes[i].keys.every(k => game.keyboard.isKeyDown(k))) {
                 this.addNoteHighlight(highlightLower, i);
                 break;
