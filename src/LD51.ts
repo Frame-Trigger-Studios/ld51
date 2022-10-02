@@ -1,13 +1,13 @@
 import { Entity, Game, Scene, Sprite, SpriteSheet, Mouse, Component, TextDisp, GlobalSystem } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
-import {switzerland} from "./midi/Songs";
-import {Song, SongLoader, SongStarter} from "./midi/PlaySong";
+import {LoadSong, SongLoader, SongStarter} from "./midi/PlaySong";
 import background from "./art/bg.png";
 import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
 
 import note_tail from "./art/note-tail.png";
 import {createNote} from "./notes";
+import {switzerland} from "./midi/Songs";
 
 export enum Layers
 {
@@ -74,7 +74,7 @@ class MainScene extends Scene
         this.addSystem(new SongStarter());
 
         const e = this.addEntity(new Entity("switzerland"));
-        e.addComponent(new Song(switzerland, 3));
+        e.addComponent(new LoadSong(switzerland, 3));
     }
 }
 
