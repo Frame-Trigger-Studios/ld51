@@ -84,6 +84,8 @@ export const createNote = (scene: Scene, note: NoteData, bar: Entity, position: 
         child.addComponent(getNoteSustainSprite(scene, note));
         child.addComponent(getNoteTailSprite(scene, note));
     }
+
+    return child;
 };
 
 // export const playNote = (scene: Scene, entity: Entity, note: Note) => {

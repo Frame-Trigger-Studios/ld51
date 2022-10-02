@@ -1,4 +1,16 @@
-import { Entity, Game, Scene, Sprite, SpriteSheet, Mouse, Component, TextDisp, GlobalSystem, TimerSystem } from "lagom-engine";
+import {
+    Entity,
+    Game,
+    Scene,
+    Sprite,
+    SpriteSheet,
+    Mouse,
+    Component,
+    TextDisp,
+    GlobalSystem,
+    TimerSystem,
+    Log, LogLevel, Diagnostics, DebugCollisionSystem
+} from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {LoadSong, NoteMover, NoteSpawner, SongLoader, SongStarter} from "./midi/PlaySong";
 import background from "./art/bg.png";
@@ -27,6 +39,8 @@ export const screenHeight = 320;
 
 export class LD51 extends Game
 {
+    static debug = false;
+
     constructor()
     {
         super({ width: screenWidth, height: screenHeight, resolution: 2, backgroundColor: 0x202020 });
@@ -63,20 +77,28 @@ class MainScene extends Scene
             bars.push(bar);
         }
 
-        // Add some random notes to the bars.
-        for (let i = 0; i < 10; i++) {
-            const bar = bars[Math.floor(Math.random() * 7)];
-            const position = Math.floor(Math.random() * 240);
-            const register = Math.floor(Math.random() * 2);
-            const duration = Math.ceil(Math.random() * 80);
+        // // Add some random notes to the bars.
+        // for (let i = 0; i < 10; i++) {
+        //     const bar = bars[Math.floor(Math.random() * 7)];
+        //     const position = Math.floor(Math.random() * 240);
+        //     const register = Math.floor(Math.random() * 2);
+        //     const duration = Math.ceil(Math.random() * 80);
+        //
+        //     const note = new NoteData(register, duration, false);
+        //     createNote(this, note, bar, position);
+        // }
+        //
+        // // Playing note.
+        // const note = new NoteData(Register.LOW, 50, true);
+        // createNote(this, note, bars[0], 0);
 
-            const note = new NoteData(register, duration, false);
-            createNote(this, note, bar, position);
+        Log.logLevel = LogLevel.NONE;
+        if (LD51.debug)
+        {
+
+            Log.logLevel = LogLevel.ALL;
+            this.addGUIEntity(new Diagnostics("white", 8, true)).transform.x = 0;
         }
-
-        // Playing note.
-        const note = new NoteData(Register.LOW, 50, true);
-        createNote(this, note, bars[0], 0);
 
         this.addGlobalSystem(new NotePlayer());
         this.addGlobalSystem(new BarHighlighter());
