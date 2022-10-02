@@ -1,25 +1,30 @@
 import {Button, Component, Entity, Game, GlobalSystem, Key, Sprite, System} from "lagom-engine";
 import * as Tone from 'tone';
 import {Synth} from "tone";
+import {instrument, Player} from "soundfont-player"
 
 class Note extends Component {
     keys: Key[];
     music_note: string;
-    on: boolean;
 
     constructor(key: Key[], music_note: string) {
         super();
         this.keys = key;
         this.music_note = music_note;
-        this.on = false;
     }
 }
 
+/* Tone.js */
 const synthOptions = Synth.getDefaults();
 synthOptions.envelope.release = 0.5;
 synthOptions.volume = -10;
 
 const synth = new Tone.Synth(synthOptions).toDestination();
+
+/* SoundFont-player */
+let trumpet: Player | undefined = undefined;
+instrument(new AudioContext(), 'trumpet', {soundfont: "MusyngKite", gain: 1})
+    .then((player: Player) => trumpet = player);
 
 
 export class NotePlayer extends GlobalSystem {
@@ -42,15 +47,18 @@ export class NotePlayer extends GlobalSystem {
                 const note_down = this.notes.map(note => note.keys.every(k => this.getScene().getGame().keyboard.isKeyDown(k)));
                 for (let i = 0; i < note_down.length; i++) {
                     if (note_down[i]) {
-                        this.notes.forEach(note => note.on = false);
-                        synth.triggerAttack(this.notes[i].music_note);
+                        // synth.triggerAttack(this.notes[i].music_note);
+                        trumpet?.stop();
+                        trumpet?.play(this.notes[i].music_note, undefined)
+
                         break;
                     }
                 }
             });
 
         } else {
-            synth.triggerRelease(Tone.now());
+            // synth.triggerRelease(Tone.now());
+            trumpet?.stop();
         }
     }
 }
