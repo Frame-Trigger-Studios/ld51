@@ -215,7 +215,7 @@ export class NoteSpawner extends System<[LeadTrack, SongTime, IsPlaying, SongRea
 
             if (leadTrack.notes[position.pos].time <= time) {
                 const note = leadTrack.notes[position.pos]
-                const noteData = new NoteData(note.register, note.noteId, note.duration * 10, false);
+                const noteData = new NoteData(note.register, note.noteId, note.duration * 10, false, position.pos);
                 const noteEntity = createNote(this.getScene(), noteData, this.bars[note.noteId], 240);
                 position.pos++;
 
