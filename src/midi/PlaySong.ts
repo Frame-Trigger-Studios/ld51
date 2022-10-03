@@ -244,7 +244,7 @@ export class NoteMover extends System<[NoteData]> {
                     entity.transform.x = 0
                 }
             } else {
-                noteData.duration -= 1
+                noteData.duration -= NOTE_SPEED * (delta/1000)
                 if (noteData.duration <= 0) {
                     entity.addComponent(new DestroyMeNextFrame());
 
