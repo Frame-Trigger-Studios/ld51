@@ -1,6 +1,7 @@
 import {Component, Entity, System, TextDisp} from "lagom-engine";
 import {NoteData} from "./notes";
 
+export let globalScore = "0";
 export class Score extends Component
 {
     pointsToAdd: number = 0;
@@ -95,7 +96,8 @@ export class ScoreUpdater extends System<[Score, TextDisp, ScoreMultiplier]>
                 score.points += score.pointsToAdd + multiplier.multiplier_pointsToAdd;
                 score.pointsToAdd = 0;
                 multiplier.multiplier_pointsToAdd = 0;
-
+                // uh
+                globalScore = score.getScoreText();
                 text1.pixiObj.text = score.getScoreText() + "    " + multiplier.getText();
             // }
         });
