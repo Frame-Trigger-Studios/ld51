@@ -54,7 +54,7 @@ export class SongStarter extends System<[SongReady]>
             {
                 entity.addComponent(new IsPlaying());
                 entity.addComponent(new SongTime(0));
-                entity.addComponent(new Timer(240 * (10000 / NOTE_SPEED), null, false))
+                entity.addComponent(new Timer(240 * (1000 / NOTE_SPEED), null, false))
                       .onTrigger.register(() => song.player.start(song.sequence));
                 MainScene.song = song.player;
 
