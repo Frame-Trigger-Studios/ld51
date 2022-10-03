@@ -5,6 +5,7 @@ import {Song} from "./Songs";
 import {LeadNote, LeadTrack, SongTime, TrackPosition} from "./PlayableTrack";
 import {createNote, NoteData, Register, updateNote} from "../ui/notes";
 import {DestroyMeNextFrame} from "../util/DestroyMeNextFrame";
+import {MainScene} from "../LD51";
 
 
 export let songHasEnded = false;
@@ -54,6 +55,7 @@ export class SongStarter extends System<[SongReady]>
                 entity.addComponent(new SongTime(0));
                 entity.addComponent(new Timer(240 * (10000 / NOTE_SPEED), null, false))
                       .onTrigger.register(() => song.player.start(song.sequence));
+                MainScene.song = song.player;
             }
         });
     }
@@ -247,17 +249,19 @@ export class NoteMover extends System<[NoteData]> {
                     entity.transform.x = 0
                 }
             } else {
+
+                noteData.leeway -= delta;
+
+                if (noteData.leeway < 0) {
+                    if (!noteData.playing && !noteData.missed) {
+                        entity.parent?.addComponent(new ScreenShake(0.5, 250));
+                        noteData.missed = true
+                    }
+                }
+
                 noteData.duration -= NOTE_SPEED * (delta/1000)
                 if (noteData.duration <= 0) {
                     entity.addComponent(new DestroyMeNextFrame());
-
-                    if (noteData.playing) {
-                        // GOOD
-                    } else {
-                        // BAD
-                        entity.parent?.addComponent(new ScreenShake(0.5, 250))
-                    }
-
                 } else {
                     updateNote(this.scene, entity, noteData);
                 }

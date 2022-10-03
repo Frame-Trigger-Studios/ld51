@@ -8,7 +8,7 @@ import {
     TextDisp,
     GlobalSystem,
     TimerSystem,
-    Log, LogLevel, Diagnostics, ScreenShaker
+    Log, LogLevel, Diagnostics, ScreenShaker, Timer, Key
 } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {LoadSong, NoteMover, NoteSpawner, songHasEnded, SongLoader, SongStarter} from "./midi/PlaySong";
@@ -21,6 +21,7 @@ import selected_ring from "./art/rings.png";
 import trumpet from "./art/trumpet.png";
 import trumpet_beep from "./art/trumpet-beep.png";
 import end_card from "./art/end-card.png";
+import title from "./art/title.png";
 
 import note_tail from "./art/note-tail.png";
 import {createNote, Register, NoteData} from "./ui/notes";
@@ -28,7 +29,8 @@ import {switzerland} from "./midi/Songs";
 import {BarHighlighter} from "./ui/BarHighlighter";
 import {DestroySystem} from "./util/DestroyMeNextFrame";
 import {NoteHighlighter} from "./ui/NoteHighlighter";
-import {globalScore, Score, ScoreDisplay, ScoreUpdater} from "./ui/Score";
+import {globalScore, Score, ScoreDisplay, ScoreMultiplier, ScoreUpdater} from "./ui/Score";
+import {SoundFontPlayer} from '@magenta/music/es6';
 
 export enum Layers
 {
@@ -49,6 +51,7 @@ export class LD51 extends Game
         super({ width: screenWidth, height: screenHeight, resolution: 2, backgroundColor: 0x202020 });
 
         this.addResource("background", new SpriteSheet(background, 480, 320));
+        this.addResource("title", new SpriteSheet(title, 480, 320));
         this.addResource("note", new SpriteSheet(note, 16, 17));
         this.addResource("note-sustain", new SpriteSheet(note_sustain, 1, 4));
         this.addResource("note-sustain-shadow", new SpriteSheet(note_sustain_shadow, 1, 1));
@@ -60,14 +63,23 @@ export class LD51 extends Game
         this.addResource("end-card", new SpriteSheet(end_card, 480, 320))
 
         this.resourceLoader.loadAll().then(() => {
-            this.setScene(new MainScene(this));
+            this.setScene(new MainMenuScene(this));
         });
     }
 
 }
 
-class MainScene extends Scene
+export class Trumpets extends Entity {
+    constructor(public amount: number) {
+        super("trumpets");
+    }
+}
+
+export class MainScene extends Scene
 {
+    // vomit
+    static song: SoundFontPlayer | undefined = undefined;
+
     onAdded()
     {
         super.onAdded();
@@ -98,22 +110,21 @@ class MainScene extends Scene
         // createNote(this, note, bars[0], 0);
 
         Log.logLevel = LogLevel.NONE;
-        if (LD51.debug)
-        {
-
+        if (LD51.debug) {
             Log.logLevel = LogLevel.ALL;
-            this.addGUIEntity(new Diagnostics("white", 8, true)).transform.x = 0;
+            const debugInfo = this.addGUIEntity(new Diagnostics("white", 8, true));
+            debugInfo.transform.x = 0;
+            debugInfo.transform.y = 100;
         }
 
         this.addGlobalSystem(new NotePlayer());
-        this.addGlobalSystem(new BarHighlighter());
 
         this.addGUIEntity(new Entity("restartText", 0, 0, Layers.GUI))
             .addComponent(new RestartText());
 
         this.addGUIEntity(new ScoreDisplay(0, 0, Layers.GUI));
 
-        this.addGlobalSystem(new ClickListener());
+        // this.addGlobalSystem(new MainMenuClickListener());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ScreenShaker(screenWidth / 2, screenHeight / 2));
 
@@ -126,6 +137,29 @@ class MainScene extends Scene
         this.addSystem(new ScoreUpdater());
 
         this.addGlobalSystem(new EndSystem());
+
+        let trumpets = this.addEntity(new Trumpets(0))
+        this.addGlobalSystem(new BarHighlighter());
+
+
+        const timer = this.addEntity(new Entity("10sTimer"));
+        timer.addComponent(new Timer(10000, null, true)).onTrigger.register(() => {
+            Log.info("10s timer triggered");
+            const multiplier = this.getEntityWithName("Score")?.getComponent<ScoreMultiplier>(ScoreMultiplier);
+            if (multiplier) {
+                multiplier.inARow += 10;
+            }
+
+            const alert = this.addEntity(new Entity("10sAlert", this.camera.width/2 - 80, 0, Layers.GUI));
+            alert.addComponent(new TextDisp(10, 8, "10s Alert: 10x multiplier added!", {
+                fontSize: 10,
+                fill: 0xf6cd26
+            }));
+
+            trumpets.amount += 1;
+
+            alert.addComponent(new Timer(2000, alert, false)).onTrigger.register((o) => o.payload.destroy());
+        })
 
         const e = this.addEntity(new Entity("switzerland"));
         e.addComponent(new LoadSong(switzerland, 3));
@@ -141,21 +175,27 @@ class ClickAction extends Component
 
     onAction()
     {
+        const game = this.getScene().getGame();
         switch (this.action)
         {
             // Start game
             case 0:
                 {
-                    console.log("Start game");
-                    const game = this.getScene().getGame();
                     game.setScene(new MainScene(game));
                     break;
                 }
+            // // Restart
+            // case 1:
+            // {
+            //     console.log("restart game");
+            //     game.setScene(new MainMenuScene(game));
+            //     break;
+            // }
         }
     }
 }
 
-class ClickListener extends GlobalSystem
+class MainMenuClickListener extends GlobalSystem
 {
     types = () => [ClickAction];
 
@@ -163,7 +203,7 @@ class ClickListener extends GlobalSystem
     {
         this.runOnComponents((actions: ClickAction[]) =>
         {
-            if (this.getScene().getGame().mouse.isButtonPressed(0))
+            if (this.getScene().getGame().keyboard.isKeyPressed(Key.Space))
             {
                 for (const action of actions)
                 {
@@ -181,13 +221,11 @@ export class MainMenuScene extends Scene
     onAdded()
     {
         super.onAdded();
-        this.addGUIEntity(new Entity("gameNameText"))
-            .addComponent(new TextDisp(screenWidth / 4, screenHeight / 4, "SNIP SNAP 2", { fill: "white", fontSize: 40 }));
+        const title = this.addEntity(new Entity("title", 0, 0, Layers.Background));
+        title.addComponent(new Sprite(this.game.getResource("title").textureFromIndex(0)));
+        title.addComponent(new ClickAction(0));
 
-        this.addGUIEntity(new Entity("playButton"))
-            .addComponent(new PlayButton());
-
-        this.addGlobalSystem(new ClickListener());
+        this.addGlobalSystem(new MainMenuClickListener());
     }
 
 }

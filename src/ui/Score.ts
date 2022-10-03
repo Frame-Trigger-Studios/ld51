@@ -50,7 +50,7 @@ export class ScoreMultiplier extends Component {
     multiplier_pointsToAdd: number = 0;
 
     reset = () => {
-        this.multiplier_pointsToAdd += this.multiplier_points * this.inARow;
+        // this.multiplier_pointsToAdd += this.multiplier_points * this.inARow;
         // console.log(this.multiplier_pointsToAdd);
         this.multiplier_points = 0;
 
@@ -67,7 +67,9 @@ export class ScoreMultiplier extends Component {
         }
         this.lastNoteIndex = noteData.trackPosition;
         this.timeSinceLastNote = 0;
-        this.multiplier_points++;
+        // this.multiplier_points++;
+        this.multiplier_pointsToAdd += this.inARow;
+        // console.log(this.multiplier_pointsToAdd);
     }
 
     outsideHitTolerance = () => {

@@ -1,9 +1,10 @@
 import {Entity, GlobalSystem, Key, Sprite, System, Timer} from "lagom-engine";
-import {Layers} from "../LD51";
+import {Layers, Trumpets} from "../LD51";
 import {lowerNotes, Note, upperNotes} from "../midi/NotePlay";
 import {DestroyMeNextFrame} from "../util/DestroyMeNextFrame";
 
 export class BarHighlighter extends GlobalSystem {
+
 
     addNoteHighlight = (isLower: boolean, position: number): void => {
         const scene = this.getScene();
@@ -23,27 +24,46 @@ export class BarHighlighter extends GlobalSystem {
         highlightEntity.addComponent(new DestroyMeNextFrame());
         ringEntity.addComponent(new DestroyMeNextFrame());
 
-        let config = {}
-        let dootx = 110
-        let dooty = 232
-        if (!isLower) {
-            dootx = 88
-            dooty = 180
-            config = {
-                rotation: -0.5,
-                xOffset: -20
+        let trumpets = (this.getScene().getEntityWithName("trumpets") as Trumpets).amount
+
+        for (let i = -1; i < trumpets; i++) {
+
+            if (i > 11) {
+                i -= 16;
+            }
+
+            let xoffset = 0;
+            let yoffset = 25*i;
+            if (i % 2 === 0) {
+                xoffset = 40;
+                yoffset += 6;
+            }
+
+            // let offset = 35*i
+
+            let config = {}
+            let dootx = 110
+            let dooty = 232
+            if (!isLower) {
+                dootx = 88
+                dooty = 180
+                config = {
+                    rotation: -0.5,
+                    xOffset: -20
+                }
+            }
+
+            const trumpet = scene.addEntity(new Entity("trumpet", xoffset, 250 - yoffset, Layers.Background));
+            trumpet.addComponent(new Sprite(scene.game.getResource("trumpet").texture(position, 0), config));
+            trumpet.addComponent(new DestroyMeNextFrame());
+
+            if (scene.game.keyboard.isKeyDown(Key.Space)) {
+                const doot = scene.addEntity(new Entity("doot", dootx + xoffset, dooty - yoffset, Layers.Background));
+                doot.addComponent(new Sprite(scene.game.getResource("trumpet-doot").texture(1, 0), config));
+                doot.addComponent(new DestroyMeNextFrame());
             }
         }
 
-        const trumpet = scene.addEntity(new Entity("trumpet", 0, 250, Layers.Background));
-        trumpet.addComponent(new Sprite(scene.game.getResource("trumpet").texture(position, 0), config));
-        trumpet.addComponent(new DestroyMeNextFrame());
-
-        if (scene.game.keyboard.isKeyDown(Key.Space)) {
-            const doot = scene.addEntity(new Entity("doot", dootx, dooty, Layers.Background));
-            doot.addComponent(new Sprite(scene.game.getResource("trumpet-doot").texture(1, 0), config));
-            doot.addComponent(new DestroyMeNextFrame());
-        }
 
     };
 
