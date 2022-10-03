@@ -7,7 +7,8 @@ export enum Register {
 }
 
 export class NoteData extends Component {
-    constructor(public note: Register,
+    constructor(public register: Register,
+                public noteId: number,
                 public duration: number = 1,
                 public playing: boolean) {
         super();
@@ -18,16 +19,9 @@ class NoteSprite extends Sprite {}
 class NoteSustainSprite extends Sprite {}
 class NoteTailSprite extends Sprite {}
 
-export const getNoteSprite = (scene: Scene, note: NoteData): Sprite => {
-    return new NoteSprite(scene.game.getResource("note").texture(note.note + 2, 0), {
-        xOffset: -8, yOffset: -8
-    });
-};
-
-export const getNoteSustainSprite = (scene: Scene, note: NoteData): Sprite => {
-
+const getNoteIndex = (note: NoteData) => {
     let note_index: number;
-    if (note.note === Register.LOW) {
+    if (note.register === Register.LOW) {
         if (note.playing) {
             note_index = 2;
         } else {
@@ -41,7 +35,18 @@ export const getNoteSustainSprite = (scene: Scene, note: NoteData): Sprite => {
         }
     }
 
-    return new NoteSustainSprite(scene.game.getResource("note-sustain").texture(note_index, 0), {
+    return note_index;
+}
+
+export const getNoteSprite = (scene: Scene, note: NoteData): Sprite => {
+    return new NoteSprite(scene.game.getResource("note").texture(getNoteIndex(note) + 2, 0), {
+        xOffset: -8, yOffset: -8
+    });
+};
+
+export const getNoteSustainSprite = (scene: Scene, note: NoteData): Sprite => {
+
+    return new NoteSustainSprite(scene.game.getResource("note-sustain").texture(getNoteIndex(note), 0), {
         xScale: note.duration,
         // xOffset: 7,
         xOffset: 3,
@@ -59,22 +64,7 @@ const getNoteSustainShadowSprite = (scene: Scene, note: NoteData): Sprite => {
 
 export const getNoteTailSprite = (scene: Scene, note: NoteData) => {
 
-    let note_index: number;
-    if (note.note === Register.LOW) {
-        if (note.playing) {
-            note_index = 2;
-        } else {
-            note_index = 0;
-        }
-    } else {
-        if (note.playing) {
-            note_index = 3;
-        } else {
-            note_index = 1;
-        }
-    }
-
-    return new NoteTailSprite(scene.game.getResource("note-tail").texture(note_index, 0), {
+    return new NoteTailSprite(scene.game.getResource("note-tail").texture(getNoteIndex(note), 0), {
         xOffset: 3 + note.duration,
         yOffset: -2
     });
@@ -84,23 +74,31 @@ export const createNote = (scene: Scene, note: NoteData, bar: Entity, position: 
 
     const child = bar.addChild(new Entity("note", position, 0, Layers.Notes));
     child.addComponent(note);
-    child.addComponent(getNoteSprite(scene, note));
 
-    // const tail = child.addChild(new Entity("tail", 0, 0, Layers.Note_Tails));
+    addNoteSprites(scene, child, note);
+    return child;
+};
+
+export const updateNote = (scene: Scene, entity: Entity, note: NoteData) => {
+    entity.getComponentsOfType(Sprite).forEach(sprite => entity.removeComponent(sprite, true));
+    addNoteSprites(scene, entity, note);
+}
+
+export const addNoteSprites = (scene: Scene, entity: Entity, note: NoteData) => {
+    entity.addComponent(getNoteSprite(scene, note));
 
     // Sustains
     if (note.duration === 0) {
         throw Error("no");
-    } else if (note.duration === 1) {
+    } else if (note.duration < 5) {
         // No tail
     } else {
-        child.addComponent(getNoteSustainSprite(scene, note));
-        child.addComponent(getNoteSustainShadowSprite(scene, note));
-        child.addComponent(getNoteTailSprite(scene, note));
+        entity.addComponent(getNoteSustainSprite(scene, note));
+        entity.addComponent(getNoteSustainShadowSprite(scene, note));
+        entity.addComponent(getNoteTailSprite(scene, note));
     }
 
-    return child;
-};
+}
 
 // export const playNote = (scene: Scene, entity: Entity, note: Note) => {
 //

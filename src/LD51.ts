@@ -27,6 +27,7 @@ import {createNote, Register, NoteData} from "./ui/notes";
 import {switzerland} from "./midi/Songs";
 import {BarHighlighter} from "./ui/BarHighlighter";
 import {DestroySystem} from "./util/DestroyMeNextFrame";
+import {NoteHighlighter} from "./ui/NoteHighlighter";
 
 export enum Layers
 {
@@ -75,7 +76,7 @@ class MainScene extends Scene
         // Entity for each of the 7 bars
         const bars = [];
         for (let i = 7; i > 0; i--) {
-            const bar = this.addEntity(new Entity("notes", 240, 40 * i, Layers.Notes));
+            const bar = this.addEntity(new Entity(`bar_${i}`, 240, 40 * i, Layers.Notes));
             bars.push(bar);
         }
 
@@ -116,6 +117,7 @@ class MainScene extends Scene
         this.addSystem(new SongStarter());
         this.addSystem(new NoteSpawner(bars));
         this.addSystem(new NoteMover());
+        this.addSystem(new NoteHighlighter());
 
         const e = this.addEntity(new Entity("switzerland"));
         e.addComponent(new LoadSong(switzerland, 3));

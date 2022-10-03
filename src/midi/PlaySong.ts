@@ -34,7 +34,7 @@ export class SongReady extends Component
 
 export class FirstNote extends Component {}
 
-const NOTE_SPEED = 50;
+const NOTE_SPEED = 100;
 
 export class SongStarter extends System<[SongReady]>
 {
@@ -214,7 +214,7 @@ export class NoteSpawner extends System<[LeadTrack, SongTime, IsPlaying, SongRea
 
             if (leadTrack.notes[position.pos].time <= time) {
                 const note = leadTrack.notes[position.pos]
-                const noteData = new NoteData(note.register, note.duration * 10, false);
+                const noteData = new NoteData(note.register, note.noteId, note.duration * 10, false);
                 const noteEntity = createNote(this.getScene(), noteData, this.bars[note.noteId], 240);
                 position.pos++;
 
