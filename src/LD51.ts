@@ -64,6 +64,12 @@ export class LD51 extends Game
 
 }
 
+export class Trumpets extends Entity {
+    constructor(public amount: number) {
+        super("trumpets");
+    }
+}
+
 class MainScene extends Scene
 {
     onAdded()
@@ -104,7 +110,6 @@ class MainScene extends Scene
         }
 
         this.addGlobalSystem(new NotePlayer());
-        this.addGlobalSystem(new BarHighlighter());
 
         this.addGUIEntity(new Entity("restartText", 0, 0, Layers.GUI))
             .addComponent(new RestartText());
@@ -123,6 +128,11 @@ class MainScene extends Scene
         this.addSystem(new NoteHighlighter());
         this.addSystem(new ScoreUpdater());
 
+
+        let trumpets = this.addEntity(new Trumpets(0))
+        this.addGlobalSystem(new BarHighlighter());
+
+
         const timer = this.addEntity(new Entity("10sTimer"));
         timer.addComponent(new Timer(10000, null, true)).onTrigger.register(() => {
             Log.info("10s timer triggered");
@@ -136,6 +146,8 @@ class MainScene extends Scene
                 fontSize: 10,
                 fill: 0xf6cd26
             }));
+
+            trumpets.amount += 1;
 
             alert.addComponent(new Timer(1000, alert, false)).onTrigger.register((o) => o.payload.destroy());
         })
