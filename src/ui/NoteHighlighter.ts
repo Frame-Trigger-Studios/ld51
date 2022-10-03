@@ -2,6 +2,8 @@ import {Key, System} from "lagom-engine";
 import {NoteData, Register, updateNote} from "./notes";
 import {lowerNotes, Note, upperNotes} from "../midi/NotePlay";
 
+const HIT_TOLERANCE = 5;
+
 export class NoteHighlighter extends System<[NoteData]> {
     types = () => [NoteData];
 
@@ -27,7 +29,7 @@ export class NoteHighlighter extends System<[NoteData]> {
                 return;
             }
 
-            if (entity.transform.x < 0 && entity.transform.x > -2) {
+            if (entity.transform.x < HIT_TOLERANCE && entity.transform.x > -HIT_TOLERANCE) {
                 for (let i = 0; i < notes.length; i++) {
                     if (notes[i].keys.every(k => game.keyboard.isKeyDown(k))) {
 

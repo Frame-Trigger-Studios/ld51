@@ -3,7 +3,8 @@ import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
 import {LeadNote, LeadTrack, SongTime, TrackPosition} from "./PlayableTrack";
-import {createNote, NoteData, Register} from "../ui/notes";
+import {createNote, NoteData, Register, updateNote} from "../ui/notes";
+import {DestroyMeNextFrame} from "../util/DestroyMeNextFrame";
 
 export class LoadSong extends Component
 {
@@ -234,7 +235,20 @@ export class NoteMover extends System<[NoteData]> {
 
     update(delta: number): void {
         this.runOnEntities((entity, noteData) => {
-            entity.transform.x -= NOTE_SPEED * (delta/1000);
+            if (entity.transform.x > 0) {
+                entity.transform.x -= NOTE_SPEED * (delta/1000);
+                if (entity.transform.x < 0) {
+                    entity.transform.x = 0
+                }
+            } else {
+                noteData.duration -= 1
+                if (noteData.duration <= 0) {
+                    entity.addComponent(new DestroyMeNextFrame());
+                } else {
+                    updateNote(this.scene, entity, noteData);
+                }
+            }
         });
     }
 }
+

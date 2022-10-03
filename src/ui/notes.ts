@@ -64,7 +64,7 @@ const getNoteSustainShadowSprite = (scene: Scene, note: NoteData): Sprite => {
 
 export const getNoteTailSprite = (scene: Scene, note: NoteData) => {
 
-    return new NoteTailSprite(scene.game.getResource("note-tail").texture(getNoteIndex(note), 0), {
+    return new NoteTailSprite(scene.game.getResource("note-tail").texture(0, 0), {
         xOffset: 3 + note.duration,
         yOffset: -2
     });
@@ -88,11 +88,7 @@ export const addNoteSprites = (scene: Scene, entity: Entity, note: NoteData) => 
     entity.addComponent(getNoteSprite(scene, note));
 
     // Sustains
-    if (note.duration === 0) {
-        throw Error("no");
-    } else if (note.duration < 5) {
-        // No tail
-    } else {
+    if (note.duration > 4) {
         entity.addComponent(getNoteSustainSprite(scene, note));
         entity.addComponent(getNoteSustainShadowSprite(scene, note));
         entity.addComponent(getNoteTailSprite(scene, note));
