@@ -247,9 +247,13 @@ export class NoteMover extends System<[NoteData]> {
                 }
             } else {
 
-                if (!noteData.playing && !noteData.missed) {
-                    entity.parent?.addComponent(new ScreenShake(0.5, 250));
-                    noteData.missed = true
+                noteData.leeway -= delta;
+
+                if (noteData.leeway < 0) {
+                    if (!noteData.playing && !noteData.missed) {
+                        entity.parent?.addComponent(new ScreenShake(0.5, 250));
+                        noteData.missed = true
+                    }
                 }
 
                 noteData.duration -= NOTE_SPEED * (delta/1000)

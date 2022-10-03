@@ -12,7 +12,8 @@ export class NoteData extends Component {
                 public duration: number = 1,
                 public playing: boolean,
                 public trackPosition: number,
-                public missed: boolean = false) {
+                public missed: boolean = false,
+                public leeway: number = 100) {
         super();
     }
 }
