@@ -1,4 +1,4 @@
-import {Component, Entity, Key, Log, System, Timer} from "lagom-engine";
+import {Component, Entity, Key, Log, Scene, ScreenShake, ScreenShaker, System, Timer} from "lagom-engine";
 import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
@@ -247,6 +247,14 @@ export class NoteMover extends System<[NoteData]> {
                 noteData.duration -= 1
                 if (noteData.duration <= 0) {
                     entity.addComponent(new DestroyMeNextFrame());
+
+                    if (noteData.playing) {
+                        // GOOD
+                    } else {
+                        // BAD
+                        entity.parent?.addComponent(new ScreenShake(0.5, 250))
+                    }
+
                 } else {
                     updateNote(this.scene, entity, noteData);
                 }
