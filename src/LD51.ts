@@ -8,7 +8,7 @@ import {
     TextDisp,
     GlobalSystem,
     TimerSystem,
-    Log, LogLevel, Diagnostics, ScreenShaker
+    Log, LogLevel, Diagnostics, ScreenShaker, Timer
 } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {LoadSong, NoteMover, NoteSpawner, SongLoader, SongStarter} from "./midi/PlaySong";
@@ -27,7 +27,7 @@ import {switzerland} from "./midi/Songs";
 import {BarHighlighter} from "./ui/BarHighlighter";
 import {DestroySystem} from "./util/DestroyMeNextFrame";
 import {NoteHighlighter} from "./ui/NoteHighlighter";
-import {Score, ScoreDisplay, ScoreUpdater} from "./ui/Score";
+import {Score, ScoreDisplay, ScoreMultiplier, ScoreUpdater} from "./ui/Score";
 
 export enum Layers
 {
@@ -96,11 +96,11 @@ class MainScene extends Scene
         // createNote(this, note, bars[0], 0);
 
         Log.logLevel = LogLevel.NONE;
-        if (LD51.debug)
-        {
-
+        if (LD51.debug) {
             Log.logLevel = LogLevel.ALL;
-            this.addGUIEntity(new Diagnostics("white", 8, true)).transform.x = 0;
+            const debugInfo = this.addGUIEntity(new Diagnostics("white", 8, true));
+            debugInfo.transform.x = 0;
+            debugInfo.transform.y = 100;
         }
 
         this.addGlobalSystem(new NotePlayer());
@@ -122,6 +122,24 @@ class MainScene extends Scene
         this.addSystem(new NoteMover());
         this.addSystem(new NoteHighlighter());
         this.addSystem(new ScoreUpdater());
+
+        const timer = this.addEntity(new Entity("10sTimer"));
+        timer.addComponent(new Timer(10000, null, true)).onTrigger.register(() => {
+            Log.info("10s timer triggered");
+            const multiplier = this.getEntityWithName("Score")?.getComponent<ScoreMultiplier>(ScoreMultiplier);
+            if (multiplier) {
+                multiplier.inARow += 10;
+            }
+
+            const alert = this.addEntity(new Entity("10sAlert", this.camera.width/2 - 80, 0, Layers.GUI));
+            alert.addComponent(new TextDisp(10, 8, "10s Alert: 10x multiplier added!", {
+                fontSize: 10,
+                fill: 0xf6cd26
+            }));
+
+            alert.addComponent(new Timer(1000, alert, false)).onTrigger.register((o) => o.payload.destroy());
+        })
+
 
         const e = this.addEntity(new Entity("switzerland"));
         e.addComponent(new LoadSong(switzerland, 3));
