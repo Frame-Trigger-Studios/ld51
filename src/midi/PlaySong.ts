@@ -8,6 +8,9 @@ import {DestroyMeNextFrame} from "../util/DestroyMeNextFrame";
 import {Layers, MainScene} from "../LD51";
 import {ScoreMultiplier} from "../ui/Score";
 
+
+export let songHasEnded = false;
+
 export class LoadSong extends Component
 {
     constructor(public readonly song: Song, readonly primaryChannel: number)
@@ -51,7 +54,7 @@ export class SongStarter extends System<[SongReady]>
             {
                 entity.addComponent(new IsPlaying());
                 entity.addComponent(new SongTime(0));
-                entity.addComponent(new Timer(240 * (1000 / NOTE_SPEED), null, false))
+                entity.addComponent(new Timer(240 * (10000 / NOTE_SPEED), null, false))
                       .onTrigger.register(() => song.player.start(song.sequence));
                 MainScene.song = song.player;
 
@@ -234,7 +237,7 @@ export class NoteSpawner extends System<[LeadTrack, SongTime, IsPlaying, SongRea
             const time = songTime.time/1000;
 
             if (position.pos >= leadTrack.notes.length) {
-                // we're done;
+                entity.addComponent(new Timer(20000, null, false)).onTrigger.register(() => songHasEnded = true);
                 return;
             }
 

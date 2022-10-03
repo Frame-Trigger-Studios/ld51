@@ -11,7 +11,7 @@ import {
     Log, LogLevel, Diagnostics, ScreenShaker, Timer, Key
 } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
-import {LoadSong, NoteMover, NoteSpawner, SongLoader, SongStarter} from "./midi/PlaySong";
+import {LoadSong, NoteMover, NoteSpawner, songHasEnded, SongLoader, SongStarter} from "./midi/PlaySong";
 import background from "./art/bg.png";
 import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
@@ -20,7 +20,8 @@ import selected_combo from "./art/selected.png";
 import selected_ring from "./art/rings.png";
 import trumpet from "./art/trumpet.png";
 import trumpet_beep from "./art/trumpet-beep.png";
-import title from "./art/title.png"
+import end_card from "./art/end-card.png";
+import title from "./art/title.png";
 
 import note_tail from "./art/note-tail.png";
 import {createNote, Register, NoteData} from "./ui/notes";
@@ -28,7 +29,7 @@ import {switzerland} from "./midi/Songs";
 import {BarHighlighter} from "./ui/BarHighlighter";
 import {DestroySystem} from "./util/DestroyMeNextFrame";
 import {NoteHighlighter} from "./ui/NoteHighlighter";
-import {Score, ScoreDisplay, ScoreMultiplier, ScoreUpdater} from "./ui/Score";
+import {globalScore, Score, ScoreDisplay, ScoreMultiplier, ScoreUpdater} from "./ui/Score";
 import {SoundFontPlayer} from '@magenta/music/es6';
 
 export enum Layers
@@ -59,6 +60,7 @@ export class LD51 extends Game
         this.addResource("selected-ring", new SpriteSheet(selected_ring, 28, 28));
         this.addResource("trumpet", new SpriteSheet(trumpet, 105, 50));
         this.addResource("trumpet-doot", new SpriteSheet(trumpet_beep, 29, 43));
+        this.addResource("end-card", new SpriteSheet(end_card, 480, 320))
 
         this.resourceLoader.loadAll().then(() => {
             this.setScene(new MainMenuScene(this));
@@ -135,6 +137,7 @@ export class MainScene extends Scene
         this.addSystem(new NoteHighlighter());
         this.addSystem(new ScoreUpdater());
 
+        this.addGlobalSystem(new EndSystem());
 
         MainScene.trumpets = this.addEntity(new Trumpets(0))
         this.addGlobalSystem(new BarHighlighter());
@@ -228,6 +231,30 @@ export class MainMenuScene extends Scene
 
 }
 
+export class EndScene extends Scene
+{
+    onAdded()
+    {
+        super.onAdded();
+        const endCard = this.addEntity(new Entity("end-card"));
+        endCard.addComponent(new Sprite(this.game.getResource("end-card").texture(0, 0)));
+        endCard.addComponent(new TextDisp(screenWidth / 4 + 10, screenHeight / 2 - 50, "Well done! You earned:", { fill: 0xf6cd26, fontSize: 20 }));
+        endCard.addComponent(new TextDisp(screenWidth / 4 + 10, screenHeight / 2, globalScore, { fill: 0xf6cd26, fontSize: 30 }));
+    }
+}
+
+class EndSystem extends GlobalSystem
+{
+    types = () => [];
+
+    update(delta: number): void {
+        if (songHasEnded) {
+            const game = this.getScene().getGame();
+            game.setScene(new EndScene(game));
+        }
+    }
+}
+
 class PlayButton extends TextDisp
 {
     constructor()
@@ -247,7 +274,7 @@ class RestartText extends TextDisp
 {
     constructor()
     {
-        const restartX = screenWidth - 85;
+        const restartX = screenWidth - 87;
         const restartY = 10;
         super(restartX, restartY, "Press '0' to restart", { fill: 0xf6cd26, fontSize: 10 });
     }
