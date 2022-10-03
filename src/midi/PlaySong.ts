@@ -1,4 +1,4 @@
-import {Component, Entity, Key, Log, System, Timer} from "lagom-engine";
+import {Component, Entity, Key, Log, Scene, ScreenShake, ScreenShaker, System, Timer} from "lagom-engine";
 import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
@@ -49,7 +49,7 @@ export class SongStarter extends System<[SongReady]>
             {
                 entity.addComponent(new IsPlaying());
                 entity.addComponent(new SongTime(0));
-                entity.addComponent(new Timer(4450, null, false))
+                entity.addComponent(new Timer(240 * (1000 / NOTE_SPEED), null, false))
                       .onTrigger.register(() => song.player.start(song.sequence));
             }
         });
@@ -153,8 +153,8 @@ export class SongLoader extends System<[LoadSong]>
             Log.debug("primary track name: ", toLoad.song.track.tracks[toLoad.primaryChannel].name);
             const notes: LeadNote[] = [];
 
-            const previousTime = -1;
-            const previousDuration = -1;
+            let previousTime = -1;
+            let previousDuration = -1;
 
             toLoad.song.track.tracks[toLoad.primaryChannel].notes.forEach(note => {
 
@@ -179,6 +179,9 @@ export class SongLoader extends System<[LoadSong]>
 
                 const key = keyLut.get(noteName) || noteName;
                 const index = noteLut.get(key) || {lowIdx: 0, highIdx: 0};
+
+                previousTime = note.time;
+                previousDuration = note.duration;
 
                 // TODO we can do logic for the two notes that overlap if we want to, we know the octave
                 //  with noteComps[2]
@@ -215,7 +218,7 @@ export class NoteSpawner extends System<[LeadTrack, SongTime, IsPlaying, SongRea
 
             if (leadTrack.notes[position.pos].time <= time) {
                 const note = leadTrack.notes[position.pos]
-                const noteData = new NoteData(note.register, note.noteId, note.duration * 10, false, position.pos);
+                const noteData = new NoteData(note.register, note.noteId, note.duration * NOTE_SPEED, false, position.pos);
                 const noteEntity = createNote(this.getScene(), noteData, this.bars[note.noteId], 240);
                 position.pos++;
 
@@ -241,9 +244,17 @@ export class NoteMover extends System<[NoteData]> {
                     entity.transform.x = 0
                 }
             } else {
-                noteData.duration -= 1
+                noteData.duration -= NOTE_SPEED * (delta/1000)
                 if (noteData.duration <= 0) {
                     entity.addComponent(new DestroyMeNextFrame());
+
+                    if (noteData.playing) {
+                        // GOOD
+                    } else {
+                        // BAD
+                        entity.parent?.addComponent(new ScreenShake(0.5, 250))
+                    }
+
                 } else {
                     updateNote(this.scene, entity, noteData);
                 }

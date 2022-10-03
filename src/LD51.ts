@@ -4,12 +4,11 @@ import {
     Scene,
     Sprite,
     SpriteSheet,
-    Mouse,
     Component,
     TextDisp,
     GlobalSystem,
     TimerSystem,
-    Log, LogLevel, Diagnostics, DebugCollisionSystem
+    Log, LogLevel, Diagnostics, ScreenShaker
 } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {LoadSong, NoteMover, NoteSpawner, SongLoader, SongStarter} from "./midi/PlaySong";
@@ -114,6 +113,7 @@ class MainScene extends Scene
 
         this.addGlobalSystem(new ClickListener());
         this.addGlobalSystem(new TimerSystem());
+        this.addGlobalSystem(new ScreenShaker(screenWidth / 2, screenHeight / 2));
 
         this.addSystem(new SongLoader());
         this.addSystem(new DestroySystem());
