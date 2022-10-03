@@ -1,5 +1,5 @@
 import {Component, GlobalSystem, Key, Log} from "lagom-engine";
-import {MainMenuScene} from "../LD51";
+import {MainMenuScene, MainScene} from "../LD51";
 import {SoundFontPlayer} from "@magenta/music/es6";
 
 export class Note extends Component
@@ -75,6 +75,10 @@ export class NotePlayer extends GlobalSystem
         }
         else if (game.keyboard.isKeyDown(Key.Digit0))
         {
+            this.getScene().entities.forEach(x => x.destroy());
+            this.getScene().systems.forEach(x => x.destroy());
+            this.getScene().globalSystems.forEach(x => x.destroy());
+            MainScene.song?.stop();
             game.setScene(new MainMenuScene(game));
         }
         else

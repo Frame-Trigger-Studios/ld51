@@ -8,7 +8,7 @@ import {
     TextDisp,
     GlobalSystem,
     TimerSystem,
-    Log, LogLevel, Diagnostics, ScreenShaker, Timer
+    Log, LogLevel, Diagnostics, ScreenShaker, Timer, Key
 } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {LoadSong, NoteMover, NoteSpawner, SongLoader, SongStarter} from "./midi/PlaySong";
@@ -20,6 +20,7 @@ import selected_combo from "./art/selected.png";
 import selected_ring from "./art/rings.png";
 import trumpet from "./art/trumpet.png";
 import trumpet_beep from "./art/trumpet-beep.png";
+import title from "./art/title.png"
 
 import note_tail from "./art/note-tail.png";
 import {createNote, Register, NoteData} from "./ui/notes";
@@ -28,6 +29,7 @@ import {BarHighlighter} from "./ui/BarHighlighter";
 import {DestroySystem} from "./util/DestroyMeNextFrame";
 import {NoteHighlighter} from "./ui/NoteHighlighter";
 import {Score, ScoreDisplay, ScoreMultiplier, ScoreUpdater} from "./ui/Score";
+import {SoundFontPlayer} from '@magenta/music/es6';
 
 export enum Layers
 {
@@ -48,6 +50,7 @@ export class LD51 extends Game
         super({ width: screenWidth, height: screenHeight, resolution: 2, backgroundColor: 0x202020 });
 
         this.addResource("background", new SpriteSheet(background, 480, 320));
+        this.addResource("title", new SpriteSheet(title, 480, 320));
         this.addResource("note", new SpriteSheet(note, 16, 17));
         this.addResource("note-sustain", new SpriteSheet(note_sustain, 1, 4));
         this.addResource("note-sustain-shadow", new SpriteSheet(note_sustain_shadow, 1, 1));
@@ -58,7 +61,7 @@ export class LD51 extends Game
         this.addResource("trumpet-doot", new SpriteSheet(trumpet_beep, 29, 43));
 
         this.resourceLoader.loadAll().then(() => {
-            this.setScene(new MainScene(this));
+            this.setScene(new MainMenuScene(this));
         });
     }
 
@@ -70,8 +73,11 @@ export class Trumpets extends Entity {
     }
 }
 
-class MainScene extends Scene
+export class MainScene extends Scene
 {
+    // vomit
+    static song: SoundFontPlayer | undefined = undefined;
+
     onAdded()
     {
         super.onAdded();
@@ -116,7 +122,7 @@ class MainScene extends Scene
 
         this.addGUIEntity(new ScoreDisplay(0, 0, Layers.GUI));
 
-        this.addGlobalSystem(new ClickListener());
+        // this.addGlobalSystem(new MainMenuClickListener());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ScreenShaker(screenWidth / 2, screenHeight / 2));
 
@@ -149,9 +155,8 @@ class MainScene extends Scene
 
             trumpets.amount += 1;
 
-            alert.addComponent(new Timer(1000, alert, false)).onTrigger.register((o) => o.payload.destroy());
+            alert.addComponent(new Timer(2000, alert, false)).onTrigger.register((o) => o.payload.destroy());
         })
-
 
         const e = this.addEntity(new Entity("switzerland"));
         e.addComponent(new LoadSong(switzerland, 3));
@@ -167,21 +172,27 @@ class ClickAction extends Component
 
     onAction()
     {
+        const game = this.getScene().getGame();
         switch (this.action)
         {
             // Start game
             case 0:
                 {
-                    console.log("Start game");
-                    const game = this.getScene().getGame();
                     game.setScene(new MainScene(game));
                     break;
                 }
+            // // Restart
+            // case 1:
+            // {
+            //     console.log("restart game");
+            //     game.setScene(new MainMenuScene(game));
+            //     break;
+            // }
         }
     }
 }
 
-class ClickListener extends GlobalSystem
+class MainMenuClickListener extends GlobalSystem
 {
     types = () => [ClickAction];
 
@@ -189,7 +200,7 @@ class ClickListener extends GlobalSystem
     {
         this.runOnComponents((actions: ClickAction[]) =>
         {
-            if (this.getScene().getGame().mouse.isButtonPressed(0))
+            if (this.getScene().getGame().keyboard.isKeyPressed(Key.Space))
             {
                 for (const action of actions)
                 {
@@ -207,13 +218,11 @@ export class MainMenuScene extends Scene
     onAdded()
     {
         super.onAdded();
-        this.addGUIEntity(new Entity("gameNameText"))
-            .addComponent(new TextDisp(screenWidth / 4, screenHeight / 4, "SNIP SNAP 2", { fill: "white", fontSize: 40 }));
+        const title = this.addEntity(new Entity("title", 0, 0, Layers.Background));
+        title.addComponent(new Sprite(this.game.getResource("title").textureFromIndex(0)));
+        title.addComponent(new ClickAction(0));
 
-        this.addGUIEntity(new Entity("playButton"))
-            .addComponent(new PlayButton());
-
-        this.addGlobalSystem(new ClickListener());
+        this.addGlobalSystem(new MainMenuClickListener());
     }
 
 }
@@ -239,7 +248,7 @@ class RestartText extends TextDisp
     {
         const restartX = screenWidth - 85;
         const restartY = 10;
-        super(restartX, restartY, "Press '0' to restart", { fill: "white", fontSize: 10 });
+        super(restartX, restartY, "Press '0' to restart", { fill: 0xf6cd26, fontSize: 10 });
     }
 
     onAdded()
