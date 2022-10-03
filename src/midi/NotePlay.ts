@@ -32,6 +32,8 @@ export const upperNotes: Note[] = [
     new Note([], 67),
 ];
 
+const trumpetSound : number = 56;
+
 export class NotePlayer extends GlobalSystem
 {
     private trumpet: SoundFontPlayer | undefined;
@@ -63,9 +65,9 @@ export class NotePlayer extends GlobalSystem
                 {
                     const note = notes[i].music_note;
                     if (this.playing === note) break;
-                    if (this.playing !== -1) this.trumpet?.playNoteUp({program: 56, pitch: this.playing, endTime: 0.01, velocity: 1});
+                    if (this.playing !== -1) this.trumpet?.playNoteUp({program: trumpetSound, pitch: this.playing, endTime: 0.01, velocity: 1});
                     this.playing = note;
-                    this.trumpet?.playNoteDown({program: 56, pitch: note});
+                    this.trumpet?.playNoteDown({program: trumpetSound, pitch: note});
                     break;
                 }
             }
@@ -82,7 +84,7 @@ export class NotePlayer extends GlobalSystem
         else
         {
             if (this.playing !== -1) {
-                this.trumpet?.playNoteUp({program: 56, pitch: this.playing, endTime: 0.01, velocity: 1});
+                this.trumpet?.playNoteUp({program: trumpetSound, pitch: this.playing, endTime: 0.01, velocity: 1});
                 this.playing = -1;
             }
         }
@@ -93,7 +95,7 @@ export class NotePlayer extends GlobalSystem
 async function loadTrumpet(): Promise<SoundFontPlayer>
 {
     const player = new SoundFontPlayer('https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus');
-    await player.loadAllSamples(56);
+    await player.loadAllSamples(trumpetSound);
     Log.info("trumpet loaded");
     return player;
 

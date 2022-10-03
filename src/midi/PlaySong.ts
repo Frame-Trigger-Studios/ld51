@@ -246,17 +246,15 @@ export class NoteMover extends System<[NoteData]> {
                     entity.transform.x = 0
                 }
             } else {
+
+                if (!noteData.playing && !noteData.missed) {
+                    entity.parent?.addComponent(new ScreenShake(0.5, 250));
+                    noteData.missed = true
+                }
+
                 noteData.duration -= NOTE_SPEED * (delta/1000)
                 if (noteData.duration <= 0) {
                     entity.addComponent(new DestroyMeNextFrame());
-
-                    if (noteData.playing) {
-                        // GOOD
-                    } else {
-                        // BAD
-                        entity.parent?.addComponent(new ScreenShake(0.5, 250))
-                    }
-
                 } else {
                     updateNote(this.scene, entity, noteData);
                 }
