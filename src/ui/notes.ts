@@ -10,7 +10,8 @@ export class NoteData extends Component {
     constructor(public register: Register,
                 public noteId: number,
                 public duration: number = 1,
-                public playing: boolean) {
+                public playing: boolean,
+                public trackPosition: number) {
         super();
     }
 }

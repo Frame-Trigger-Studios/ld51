@@ -27,6 +27,7 @@ import {switzerland} from "./midi/Songs";
 import {BarHighlighter} from "./ui/BarHighlighter";
 import {DestroySystem} from "./util/DestroyMeNextFrame";
 import {NoteHighlighter} from "./ui/NoteHighlighter";
+import {Score, ScoreDisplay, ScoreUpdater} from "./ui/Score";
 
 export enum Layers
 {
@@ -108,6 +109,8 @@ class MainScene extends Scene
         this.addGUIEntity(new Entity("restartText", 0, 0, Layers.GUI))
             .addComponent(new RestartText());
 
+        this.addGUIEntity(new ScoreDisplay(0, 0, Layers.GUI));
+
         this.addGlobalSystem(new ClickListener());
         this.addGlobalSystem(new TimerSystem());
         this.addGlobalSystem(new ScreenShaker(screenWidth / 2, screenHeight / 2));
@@ -118,6 +121,7 @@ class MainScene extends Scene
         this.addSystem(new NoteSpawner(bars));
         this.addSystem(new NoteMover());
         this.addSystem(new NoteHighlighter());
+        this.addSystem(new ScoreUpdater());
 
         const e = this.addEntity(new Entity("switzerland"));
         e.addComponent(new LoadSong(switzerland, 3));
