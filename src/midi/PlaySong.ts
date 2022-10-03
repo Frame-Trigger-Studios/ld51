@@ -1,11 +1,12 @@
-import {Component, Entity, Key, Log, Scene, ScreenShake, ScreenShaker, System, Timer} from "lagom-engine";
+import {Component, Entity, Key, Log, Scene, ScreenShake, ScreenShaker, System, TextDisp, Timer} from "lagom-engine";
 import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
 import {LeadNote, LeadTrack, SongTime, TrackPosition} from "./PlayableTrack";
 import {createNote, NoteData, Register, updateNote} from "../ui/notes";
 import {DestroyMeNextFrame} from "../util/DestroyMeNextFrame";
-import {MainScene} from "../LD51";
+import {Layers, MainScene} from "../LD51";
+import {ScoreMultiplier} from "../ui/Score";
 
 export class LoadSong extends Component
 {
@@ -53,6 +54,25 @@ export class SongStarter extends System<[SongReady]>
                 entity.addComponent(new Timer(240 * (1000 / NOTE_SPEED), null, false))
                       .onTrigger.register(() => song.player.start(song.sequence));
                 MainScene.song = song.player;
+
+                const timer = this.getScene().addEntity(new Entity("10sTimer"));
+                timer.addComponent(new Timer(10000, null, true)).onTrigger.register(() => {
+                    Log.info("10s timer triggered");
+                    const multiplier = this.getScene().getEntityWithName("Score")?.getComponent<ScoreMultiplier>(ScoreMultiplier);
+                    if (multiplier) {
+                        multiplier.inARow += 10;
+                    }
+
+                    const alert = this.getScene().addEntity(new Entity("10sAlert", this.getScene().camera.width/2 - 80, 0, Layers.GUI));
+                    alert.addComponent(new TextDisp(10, 8, "10s Alert: 10x multiplier added!", {
+                        fontSize: 10,
+                        fill: 0xf6cd26
+                    }));
+
+                    MainScene.trumpets.amount += 1;
+
+                    alert.addComponent(new Timer(2000, alert, false)).onTrigger.register((o) => o.payload.destroy());
+                })
             }
         });
     }

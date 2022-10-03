@@ -77,6 +77,7 @@ export class MainScene extends Scene
 {
     // vomit
     static song: SoundFontPlayer | undefined = undefined;
+    static trumpets: Trumpets;
 
     onAdded()
     {
@@ -135,28 +136,28 @@ export class MainScene extends Scene
         this.addSystem(new ScoreUpdater());
 
 
-        let trumpets = this.addEntity(new Trumpets(0))
+        MainScene.trumpets = this.addEntity(new Trumpets(0))
         this.addGlobalSystem(new BarHighlighter());
 
 
-        const timer = this.addEntity(new Entity("10sTimer"));
-        timer.addComponent(new Timer(10000, null, true)).onTrigger.register(() => {
-            Log.info("10s timer triggered");
-            const multiplier = this.getEntityWithName("Score")?.getComponent<ScoreMultiplier>(ScoreMultiplier);
-            if (multiplier) {
-                multiplier.inARow += 10;
-            }
-
-            const alert = this.addEntity(new Entity("10sAlert", this.camera.width/2 - 80, 0, Layers.GUI));
-            alert.addComponent(new TextDisp(10, 8, "10s Alert: 10x multiplier added!", {
-                fontSize: 10,
-                fill: 0xf6cd26
-            }));
-
-            trumpets.amount += 1;
-
-            alert.addComponent(new Timer(2000, alert, false)).onTrigger.register((o) => o.payload.destroy());
-        })
+        // const timer = this.addEntity(new Entity("10sTimer"));
+        // timer.addComponent(new Timer(10000, null, true)).onTrigger.register(() => {
+        //     Log.info("10s timer triggered");
+        //     const multiplier = this.getEntityWithName("Score")?.getComponent<ScoreMultiplier>(ScoreMultiplier);
+        //     if (multiplier) {
+        //         multiplier.inARow += 10;
+        //     }
+        //
+        //     const alert = this.addEntity(new Entity("10sAlert", this.camera.width/2 - 80, 0, Layers.GUI));
+        //     alert.addComponent(new TextDisp(10, 8, "10s Alert: 10x multiplier added!", {
+        //         fontSize: 10,
+        //         fill: 0xf6cd26
+        //     }));
+        //
+        //     MainScene.trumpets.amount += 1;
+        //
+        //     alert.addComponent(new Timer(2000, alert, false)).onTrigger.register((o) => o.payload.destroy());
+        // })
 
         const e = this.addEntity(new Entity("switzerland"));
         e.addComponent(new LoadSong(switzerland, 3));
