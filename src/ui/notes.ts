@@ -19,7 +19,9 @@ class NoteSustainSprite extends Sprite {}
 class NoteTailSprite extends Sprite {}
 
 export const getNoteSprite = (scene: Scene, note: NoteData): Sprite => {
-    return new NoteSprite(scene.game.getResource("note").texture(note.note, 0), {xOffset: -7, yOffset: -7});
+    return new NoteSprite(scene.game.getResource("note").texture(note.note + 2, 0), {
+        xOffset: -8, yOffset: -8
+    });
 };
 
 export const getNoteSustainSprite = (scene: Scene, note: NoteData): Sprite => {
@@ -41,10 +43,19 @@ export const getNoteSustainSprite = (scene: Scene, note: NoteData): Sprite => {
 
     return new NoteSustainSprite(scene.game.getResource("note-sustain").texture(note_index, 0), {
         xScale: note.duration,
-        xOffset: 7,
+        // xOffset: 7,
+        xOffset: 3,
         yOffset: -2
     });
 };
+
+const getNoteSustainShadowSprite = (scene: Scene, note: NoteData): Sprite => {
+    return new Sprite(scene.game.getResource("note-sustain-shadow").texture(0, 0), {
+        xScale: note.duration,
+        xOffset: 6,
+        yOffset: 2
+    })
+}
 
 export const getNoteTailSprite = (scene: Scene, note: NoteData) => {
 
@@ -64,7 +75,7 @@ export const getNoteTailSprite = (scene: Scene, note: NoteData) => {
     }
 
     return new NoteTailSprite(scene.game.getResource("note-tail").texture(note_index, 0), {
-        xOffset: 7 + note.duration,
+        xOffset: 3 + note.duration,
         yOffset: -2
     });
 };
@@ -75,6 +86,8 @@ export const createNote = (scene: Scene, note: NoteData, bar: Entity, position: 
     child.addComponent(note);
     child.addComponent(getNoteSprite(scene, note));
 
+    // const tail = child.addChild(new Entity("tail", 0, 0, Layers.Note_Tails));
+
     // Sustains
     if (note.duration === 0) {
         throw Error("no");
@@ -82,6 +95,7 @@ export const createNote = (scene: Scene, note: NoteData, bar: Entity, position: 
         // No tail
     } else {
         child.addComponent(getNoteSustainSprite(scene, note));
+        child.addComponent(getNoteSustainShadowSprite(scene, note));
         child.addComponent(getNoteTailSprite(scene, note));
     }
 

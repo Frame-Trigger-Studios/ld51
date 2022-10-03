@@ -16,6 +16,7 @@ import {LoadSong, NoteMover, NoteSpawner, SongLoader, SongStarter} from "./midi/
 import background from "./art/bg.png";
 import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
+import note_sustain_shadow from "./art/note-sustain-shadow.png";
 import selected_combo from "./art/selected.png";
 import selected_ring from "./art/rings.png";
 import trumpet from "./art/trumpet.png";
@@ -46,8 +47,9 @@ export class LD51 extends Game
         super({ width: screenWidth, height: screenHeight, resolution: 2, backgroundColor: 0x202020 });
 
         this.addResource("background", new SpriteSheet(background, 480, 320));
-        this.addResource("note", new SpriteSheet(note, 14, 15));
-        this.addResource("note-sustain", new SpriteSheet(note_sustain, 1, 5));
+        this.addResource("note", new SpriteSheet(note, 16, 17));
+        this.addResource("note-sustain", new SpriteSheet(note_sustain, 1, 4));
+        this.addResource("note-sustain-shadow", new SpriteSheet(note_sustain_shadow, 1, 1));
         this.addResource("note-tail", new SpriteSheet(note_tail, 4, 5));
         this.addResource("selected-combo", new SpriteSheet(selected_combo, 24, 24));
         this.addResource("selected-ring", new SpriteSheet(selected_ring, 28, 28));
