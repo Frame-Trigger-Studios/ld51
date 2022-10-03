@@ -4,10 +4,11 @@ import * as ReactDOM from "react-dom";
 import './App.css';
 import {LagomGameComponent} from "lagom-engine";
 import {LD51} from "./LD51";
+import {loadTrumpet} from "./midi/NotePlay";
 
 const game = new LD51();
 
-game.load().then(() => {
+Promise.all([game.load(), loadTrumpet()]).then(() => {
     const App = () => (
         <div style={{display: "flex", height: "100%", alignItems: "center", justifyContent: "center"}}>
             <LagomGameComponent game={game}/>

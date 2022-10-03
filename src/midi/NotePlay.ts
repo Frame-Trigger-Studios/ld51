@@ -36,18 +36,11 @@ const trumpetSound : number = 56;
 
 export class NotePlayer extends GlobalSystem
 {
-    private trumpet: SoundFontPlayer | undefined;
-
     private playing: number = -1;
-
 
     constructor()
     {
         super();
-
-        loadTrumpet().then(value => {
-            this.trumpet = value;
-        });
     }
 
     types = () => [];
@@ -65,9 +58,9 @@ export class NotePlayer extends GlobalSystem
                 {
                     const note = notes[i].music_note;
                     if (this.playing === note) break;
-                    if (this.playing !== -1) this.trumpet?.playNoteUp({program: trumpetSound, pitch: this.playing, endTime: 0.01, velocity: 1});
+                    if (this.playing !== -1) trumpetPlayer?.playNoteUp({program: trumpetSound, pitch: this.playing, endTime: 0.01, velocity: 1});
                     this.playing = note;
-                    this.trumpet?.playNoteDown({program: trumpetSound, pitch: note});
+                    trumpetPlayer?.playNoteDown({program: trumpetSound, pitch: note});
                     break;
                 }
             }
@@ -81,20 +74,22 @@ export class NotePlayer extends GlobalSystem
         else
         {
             if (this.playing !== -1) {
-                this.trumpet?.playNoteUp({program: trumpetSound, pitch: this.playing, endTime: 0.01, velocity: 1});
+                trumpetPlayer?.playNoteUp({program: trumpetSound, pitch: this.playing, endTime: 0.01, velocity: 1});
                 this.playing = -1;
             }
         }
     }
 }
 
+export let trumpetPlayer: SoundFontPlayer | undefined;
 
-async function loadTrumpet(): Promise<SoundFontPlayer>
+export async function loadTrumpet()
 {
     const player = new SoundFontPlayer('https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus');
     await player.loadAllSamples(trumpetSound);
     Log.info("trumpet loaded");
-    return player;
+    trumpetPlayer = player;
+    // return player;
 
     // player.playNoteDown({program: 56, pitch: 60})
     // player.playNoteUp({program: 56, pitch: 60})

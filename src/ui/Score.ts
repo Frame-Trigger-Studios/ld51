@@ -39,7 +39,7 @@ export class ScoreDisplay extends Entity
     }
 }
 
-const HIT_TIME_TOLERANCE_MS = 1000;
+const HIT_TIME_TOLERANCE_MS = 100;
 
 export class ScoreMultiplier extends Component {
     lastNoteIndex: number = -1;

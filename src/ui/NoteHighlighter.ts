@@ -21,20 +21,16 @@ export class NoteHighlighter extends System<[NoteData]> {
             register = Register.LOW;
         }
 
-        const multiplier = this.getScene().getEntityWithName("Score")?.getComponent<ScoreMultiplier>(ScoreMultiplier);
+        const scoreEntity = this.getScene().getEntityWithName("Score");
+        const score = scoreEntity?.getComponent<Score>(Score);
+        const multiplier = scoreEntity?.getComponent<ScoreMultiplier>(ScoreMultiplier);
+
         multiplier?.updateTime(delta);
 
         this.runOnEntities((entity, noteData) => {
 
-            // noteData.playing = false;
-
             if (noteData.register !== register) {
-                if (game.keyboard.isKeyDown(Key.Space) && multiplier?.outsideHitTolerance()) {
-                    Log.info("reset 1")
-                    multiplier?.reset();
-                }
                 return;
-
             }
 
             if (entity.transform.x < HIT_TOLERANCE && entity.transform.x > -HIT_TOLERANCE) {
@@ -48,10 +44,8 @@ export class NoteHighlighter extends System<[NoteData]> {
                         if (noteData.noteId === index && game.keyboard.isKeyDown(Key.Space)) {
                             noteData.playing = true;
 
-                            this.getScene().getEntityWithName("Score")?.getComponent<Score>(Score)?.addPoints(1);
+                            score?.addPoints(1);
                             multiplier?.notePlayed(noteData);
-
-                            // Log.info(`${multiplier?.inARow} in a row!`)
 
                             hitNote = true;
 
@@ -59,13 +53,6 @@ export class NoteHighlighter extends System<[NoteData]> {
                         break;
                     }
                 }
-                if (!hitNote && multiplier?.outsideHitTolerance()) {
-                    Log.info("reset 2")
-                    multiplier?.reset();
-                }
-            } else if (game.keyboard.isKeyDown(Key.Space) && multiplier?.outsideHitTolerance()) {
-                Log.info("reset 3")
-                multiplier?.reset();
             }
 
             updateNote(this.scene, entity, noteData);

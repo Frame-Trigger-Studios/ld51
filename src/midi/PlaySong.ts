@@ -237,7 +237,8 @@ export class NoteSpawner extends System<[LeadTrack, SongTime, IsPlaying, SongRea
             const time = songTime.time/1000;
 
             if (position.pos >= leadTrack.notes.length) {
-                entity.addComponent(new Timer(20000, null, false)).onTrigger.register(() => songHasEnded = true);
+                entity.addComponent(new Timer(7000,
+                    null, false)).onTrigger.register(() => songHasEnded = true);
                 return;
             }
 
@@ -262,6 +263,9 @@ export class NoteMover extends System<[NoteData]> {
     types = () => [NoteData];
 
     update(delta: number): void {
+
+        const multiplier = this.getScene().getEntityWithName("Score")?.getComponent<ScoreMultiplier>(ScoreMultiplier);
+
         this.runOnEntities((entity, noteData) => {
             if (entity.transform.x > 0) {
                 entity.transform.x -= NOTE_SPEED * (delta/1000);
@@ -275,6 +279,7 @@ export class NoteMover extends System<[NoteData]> {
                 if (noteData.leeway < 0) {
                     if (!noteData.playing && !noteData.missed) {
                         entity.parent?.addComponent(new ScreenShake(0.5, 250));
+                        multiplier?.reset()
                         noteData.missed = true
                     }
                 }

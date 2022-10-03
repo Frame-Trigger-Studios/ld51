@@ -8,7 +8,7 @@ import {
     TextDisp,
     GlobalSystem,
     TimerSystem,
-    Log, LogLevel, Diagnostics, ScreenShaker, Timer, Key
+    Log, LogLevel, Diagnostics, ScreenShaker, Key, AnimatedSprite, FrameTriggerSystem
 } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
 import {LoadSong, NoteMover, NoteSpawner, songHasEnded, SongLoader, SongStarter} from "./midi/PlaySong";
@@ -222,11 +222,15 @@ export class MainMenuScene extends Scene
     onAdded()
     {
         super.onAdded();
-        const title = this.addEntity(new Entity("title", 0, 0, Layers.Background));
-        title.addComponent(new Sprite(this.game.getResource("title").textureFromIndex(0)));
+        const title = this.addEntity(new Entity("title", 0, 0, Layers.GUI));
+
+        title.addComponent(new AnimatedSprite(this.game.getResource("title").textureSliceFromSheet(), {
+            animationSpeed: 1000
+        }));
         title.addComponent(new ClickAction(0));
 
         this.addGlobalSystem(new MainMenuClickListener());
+        this.addGlobalSystem(new FrameTriggerSystem());
     }
 
 }
@@ -240,6 +244,7 @@ export class EndScene extends Scene
         endCard.addComponent(new Sprite(this.game.getResource("end-card").texture(0, 0)));
         endCard.addComponent(new TextDisp(screenWidth / 4 + 10, screenHeight / 2 - 50, "Well done! You earned:", { fill: 0xf6cd26, fontSize: 20 }));
         endCard.addComponent(new TextDisp(screenWidth / 4 + 10, screenHeight / 2, globalScore, { fill: 0xf6cd26, fontSize: 30 }));
+        endCard.addComponent(new TextDisp(screenWidth / 4 + 10, screenHeight / 2 + 60, "F5 to play again", { fill: 0xf6cd26, fontSize: 20 }));
     }
 }
 
