@@ -55,7 +55,7 @@ export const getNoteSustainSprite = (scene: Scene, note: NoteData): Sprite => {
 };
 
 const getNoteSustainShadowSprite = (scene: Scene, note: NoteData): Sprite => {
-    return new Sprite(scene.game.getResource("note-sustain-shadow").texture(0, 0), {
+    return new Sprite(scene.game.getResource("note-sustain-shadow").texture(getNoteIndex(note), 0), {
         xScale: note.duration,
         xOffset: 6,
         yOffset: 2
@@ -64,7 +64,7 @@ const getNoteSustainShadowSprite = (scene: Scene, note: NoteData): Sprite => {
 
 export const getNoteTailSprite = (scene: Scene, note: NoteData) => {
 
-    return new NoteTailSprite(scene.game.getResource("note-tail").texture(0, 0), {
+    return new NoteTailSprite(scene.game.getResource("note-tail").texture(getNoteIndex(note), 0), {
         xOffset: 3 + note.duration,
         yOffset: -2
     });
