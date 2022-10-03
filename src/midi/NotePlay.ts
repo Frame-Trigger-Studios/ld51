@@ -75,9 +75,6 @@ export class NotePlayer extends GlobalSystem
         }
         else if (game.keyboard.isKeyDown(Key.Digit0))
         {
-            this.getScene().entities.forEach(x => x.destroy());
-            this.getScene().systems.forEach(x => x.destroy());
-            this.getScene().globalSystems.forEach(x => x.destroy());
             MainScene.song?.stop();
             game.setScene(new MainMenuScene(game));
         }
