@@ -5,6 +5,7 @@ import {Song} from "./Songs";
 import {LeadNote, LeadTrack, SongTime, TrackPosition} from "./PlayableTrack";
 import {createNote, NoteData, Register, updateNote} from "../ui/notes";
 import {DestroyMeNextFrame} from "../util/DestroyMeNextFrame";
+import {MainScene} from "../LD51";
 
 export class LoadSong extends Component
 {
@@ -51,6 +52,7 @@ export class SongStarter extends System<[SongReady]>
                 entity.addComponent(new SongTime(0));
                 entity.addComponent(new Timer(240 * (1000 / NOTE_SPEED), null, false))
                       .onTrigger.register(() => song.player.start(song.sequence));
+                MainScene.song = song.player;
             }
         });
     }
