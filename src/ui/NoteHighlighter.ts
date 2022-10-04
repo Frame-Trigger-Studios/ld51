@@ -44,7 +44,7 @@ export class NoteHighlighter extends System<[NoteData]> {
                         if (noteData.noteId === index && game.keyboard.isKeyDown(Key.Space)) {
                             noteData.playing = true;
 
-                            score?.addPoints(1);
+                            score?.addPoints((delta/20));
                             multiplier?.notePlayed(noteData);
 
                             hitNote = true;
@@ -57,5 +57,6 @@ export class NoteHighlighter extends System<[NoteData]> {
 
             updateNote(this.scene, entity, noteData);
         });
+
     }
 }

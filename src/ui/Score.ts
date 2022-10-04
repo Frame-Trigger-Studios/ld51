@@ -16,7 +16,7 @@ export class Score extends Component
 
     public getScoreText(): string
     {
-        return `${this.points} Points`;
+        return `${Math.floor(this.points)} Points`;
     }
 }
 
