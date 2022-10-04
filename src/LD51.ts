@@ -11,7 +11,7 @@ import {
     Log, LogLevel, Diagnostics, ScreenShaker, Key, AnimatedSprite, FrameTriggerSystem
 } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
-import {LoadSong, NoteMover, NoteSpawner, songHasEnded, SongLoader, SongStarter} from "./midi/PlaySong";
+import {loadedSongs, LoadSong, NoteMover, NoteSpawner, songHasEnded, SongLoader, SongStarter} from "./midi/PlaySong";
 import background from "./art/bg.png";
 import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
@@ -24,12 +24,11 @@ import end_card from "./art/end-card.png";
 import title from "./art/title.png";
 
 import note_tail from "./art/note-tail.png";
-import {createNote, Register, NoteData} from "./ui/notes";
-import {switzerland} from "./midi/Songs";
+import {switzerland, midilovania} from "./midi/Songs";
 import {BarHighlighter} from "./ui/BarHighlighter";
 import {DestroySystem} from "./util/DestroyMeNextFrame";
 import {NoteHighlighter} from "./ui/NoteHighlighter";
-import {globalScore, Score, ScoreDisplay, ScoreMultiplier, ScoreUpdater} from "./ui/Score";
+import {globalScore, ScoreDisplay, ScoreUpdater} from "./ui/Score";
 import {SoundFontPlayer} from '@magenta/music/es6';
 
 export enum Layers
@@ -81,6 +80,10 @@ export class MainScene extends Scene
     static song: SoundFontPlayer | undefined = undefined;
     static trumpets: Trumpets;
 
+    constructor(readonly game: Game, readonly song: LoadSong) {
+        super(game);
+    }
+
     onAdded()
     {
         super.onAdded();
@@ -94,21 +97,6 @@ export class MainScene extends Scene
             const bar = this.addEntity(new Entity(`bar_${i}`, 240, 40 * i, Layers.Notes));
             bars.push(bar);
         }
-
-        // // Add some random notes to the bars.
-        // for (let i = 0; i < 10; i++) {
-        //     const bar = bars[Math.floor(Math.random() * 7)];
-        //     const position = Math.floor(Math.random() * 240);
-        //     const register = Math.floor(Math.random() * 2);
-        //     const duration = Math.ceil(Math.random() * 80);
-        //
-        //     const note = new NoteData(register, duration, false);
-        //     createNote(this, note, bar, position);
-        // }
-        //
-        // // Playing note.
-        // const note = new NoteData(Register.LOW, 50, true);
-        // createNote(this, note, bars[0], 0);
 
         Log.logLevel = LogLevel.NONE;
         if (LD51.debug) {
@@ -142,29 +130,8 @@ export class MainScene extends Scene
         MainScene.trumpets = this.addEntity(new Trumpets(0))
         this.addGlobalSystem(new BarHighlighter());
 
-
-        // const timer = this.addEntity(new Entity("10sTimer"));
-        // timer.addComponent(new Timer(10000, null, true)).onTrigger.register(() => {
-        //     Log.info("10s timer triggered");
-        //     const multiplier = this.getEntityWithName("Score")?.getComponent<ScoreMultiplier>(ScoreMultiplier);
-        //     if (multiplier) {
-        //         multiplier.inARow += 10;
-        //     }
-        //
-        //     const alert = this.addEntity(new Entity("10sAlert", this.camera.width/2 - 80, 0, Layers.GUI));
-        //     alert.addComponent(new TextDisp(10, 8, "10s Alert: 10x multiplier added!", {
-        //         fontSize: 10,
-        //         fill: 0xf6cd26
-        //     }));
-        //
-        //     MainScene.trumpets.amount += 1;
-        //
-        //     alert.addComponent(new Timer(2000, alert, false)).onTrigger.register((o) => o.payload.destroy());
-        // })
-
         const e = this.addEntity(new Entity("switzerland"));
-        e.addComponent(new LoadSong(switzerland, 3));
-    }
+        e.addComponent(this.song);}
 }
 
 class ClickAction extends Component
@@ -182,7 +149,7 @@ class ClickAction extends Component
             // Start game
             case 0:
                 {
-                    game.setScene(new MainScene(game));
+                    game.setScene(new MainScene(game, (this.getScene() as MainScene).song));
                     break;
                 }
             // // Restart
@@ -198,19 +165,17 @@ class ClickAction extends Component
 
 class MainMenuClickListener extends GlobalSystem
 {
-    types = () => [ClickAction];
+    types = () => [];
 
     update(delta: number): void
     {
-        this.runOnComponents((actions: ClickAction[]) =>
+        this.runOnComponents(() =>
         {
             if (this.getScene().getGame().keyboard.isKeyPressed(Key.Space))
             {
-                for (const action of actions)
-                {
-                    action.onAction();
-                    //button.destroy();
-                }
+                this.getScene().getGame().setScene(new MainScene(this.getScene().getGame(), new LoadSong(switzerland, 3)));
+            } else if (this.getScene().getGame().keyboard.isKeyPressed(Key.KeyM)) {
+                this.getScene().getGame().setScene(new MainScene(this.getScene().getGame(), new LoadSong(midilovania, 2)));
             }
         });
     }
@@ -227,7 +192,6 @@ export class MainMenuScene extends Scene
         title.addComponent(new AnimatedSprite(this.game.getResource("title").textureSliceFromSheet(), {
             animationSpeed: 1000
         }));
-        title.addComponent(new ClickAction(0));
 
         this.addGlobalSystem(new MainMenuClickListener());
         this.addGlobalSystem(new FrameTriggerSystem());
@@ -257,20 +221,6 @@ class EndSystem extends GlobalSystem
             const game = this.getScene().getGame();
             game.setScene(new EndScene(game));
         }
-    }
-}
-
-class PlayButton extends TextDisp
-{
-    constructor()
-    {
-        super(screenWidth / 4 + 10, screenHeight / 2, "CLICK TO START GAME", { fill: "white", fontSize: 20 });
-    }
-
-    onAdded()
-    {
-        super.onAdded();
-        this.getEntity().addComponent(new ClickAction(0));
     }
 }
 

@@ -74,7 +74,7 @@ export class BarHighlighter extends GlobalSystem {
 
         let notes: Note[];
         let highlightLower;
-        if (game.keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight)) {
+        if (game.keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight, Key.Enter)) {
             notes = upperNotes;
             highlightLower = false;
         } else {

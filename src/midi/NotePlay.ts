@@ -50,7 +50,7 @@ export class NotePlayer extends GlobalSystem
         const game = this.getScene().getGame();
         if (game.keyboard.isKeyDown(Key.Space))
         {
-            const notes = (game.keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight)) ? upperNotes : lowerNotes;
+            const notes = (game.keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight, Key.Enter)) ? upperNotes : lowerNotes;
 
             for (let i = 0; i < notes.length; i++)
             {

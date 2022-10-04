@@ -31,7 +31,7 @@ export class IsPlaying extends Component
 
 export class SongReady extends Component
 {
-    constructor(readonly player: SoundFontPlayer, readonly sequence: mm.NoteSequence)
+    constructor(readonly player: SoundFontPlayer, readonly sequence: mm.NoteSequence, readonly notes: LeadNote[])
     {
         super();
     }
@@ -49,8 +49,7 @@ export class SongStarter extends System<[SongReady]>
     update(delta: number): void
     {
         this.runOnEntities((entity, song) => {
-            if (entity.scene.game.keyboard.isKeyPressed(Key.Space)
-                && entity.getComponent(IsPlaying) === null)
+            if (entity.getComponent(IsPlaying) === null)
             {
                 entity.addComponent(new IsPlaying());
                 entity.addComponent(new SongTime(0));
@@ -81,9 +80,11 @@ export class SongStarter extends System<[SongReady]>
     }
 }
 
-async function loadSong(song: string): Promise<SongReady>
+export let loadedSongs: {[name: string]: SongReady} = {}
+
+export async function loadSong(song: Song, primaryChannel: number)
 {
-    const sequence = await mm.urlToNoteSequence(song);
+    const sequence = await mm.urlToNoteSequence(song.midi);
     Log.info("MIDI track loaded. Total time is", sequence.totalTime);
 
     // Max velocity is 127, crush it down to have a max of 20.
@@ -99,7 +100,52 @@ async function loadSong(song: string): Promise<SongReady>
     await player.loadSamples(sequence);
     Log.info("All samples loaded, ready for playback.");
 
-    return new SongReady(player, sequence);
+    const notes = getLeadNotes(song, primaryChannel)
+
+    loadedSongs[song.name] = new SongReady(player, sequence, notes);
+}
+
+function getLeadNotes(song: Song, primaryChannel: number) {
+    const notes: LeadNote[] = [];
+
+    let previousTime = -1;
+    let previousDuration = -1;
+
+    song.track.tracks[primaryChannel].notes.forEach(note => {
+
+        // Find anything that started at the same time, drop it.
+        if (note.time <= previousTime) {
+            return;
+        }
+
+        // Find anything that overlaps, chop the original so it fits in.
+        if (previousTime + previousDuration > note.time) {
+            notes.at(notes.length - 1)!.duration = note.time - previousTime;
+        }
+
+        const noteComps = note.name.match("(.*?)(\\d+)");
+
+        if (noteComps === null) {
+            return;
+        }
+
+        const noteName = noteComps[1];
+
+        const key = keyLut.get(noteName) || noteName;
+        const index = noteLut.get(key) || {lowIdx: 0, highIdx: 0};
+
+        previousTime = note.time;
+        previousDuration = note.duration;
+
+        // TODO we can do logic for the two notes that overlap if we want to, we know the octave
+        //  with noteComps[2]
+        if (index.lowIdx === -1) {
+            notes.push({time: note.time, noteId: index.highIdx, duration: note.duration, register: Register.HIGH});
+        } else {
+            notes.push({time: note.time, noteId: index.lowIdx, duration: note.duration, register: Register.LOW});
+        }
+    });
+    return notes;
 }
 
 const keyLut: Map<string, string> = new Map([
@@ -163,6 +209,7 @@ const noteLut: Map<string, { lowIdx: number, highIdx: number }> = new Map([
         highIdx: 4
     }]]);
 
+
 export class SongLoader extends System<[LoadSong]>
 {
     types = () => [LoadSong];
@@ -172,52 +219,13 @@ export class SongLoader extends System<[LoadSong]>
         this.runOnEntities((entity, toLoad) => {
 
             // Load the actual song so it can be played.
-            loadSong(toLoad.song.midi).then(value => entity.addComponent(value));
+            const song = loadedSongs[toLoad.song.name]
+            entity.addComponent(song);
 
             // Load the lead track for the player input.
             Log.debug("primary track name: ", toLoad.song.track.tracks[toLoad.primaryChannel].name);
-            const notes: LeadNote[] = [];
 
-            let previousTime = -1;
-            let previousDuration = -1;
-
-            toLoad.song.track.tracks[toLoad.primaryChannel].notes.forEach(note => {
-
-                // Find anything that started at the same time, drop it.
-                if (note.time <= previousTime) {
-                    return;
-                }
-
-                // Find anything that overlaps, chop the original so it fits in.
-                if (previousTime + previousDuration > note.time) {
-                    notes.at(notes.length-1)!.duration = note.time - previousTime;
-                }
-
-                const noteComps = note.name.match("(.*?)(\\d+)");
-
-                if (noteComps === null)
-                {
-                    return;
-                }
-
-                const noteName = noteComps[1];
-
-                const key = keyLut.get(noteName) || noteName;
-                const index = noteLut.get(key) || {lowIdx: 0, highIdx: 0};
-
-                previousTime = note.time;
-                previousDuration = note.duration;
-
-                // TODO we can do logic for the two notes that overlap if we want to, we know the octave
-                //  with noteComps[2]
-                if (index.lowIdx === -1) {
-                    notes.push({time: note.time, noteId: index.highIdx, duration: note.duration, register: Register.HIGH});
-                } else {
-                    notes.push({time: note.time, noteId: index.lowIdx, duration: note.duration, register: Register.LOW});
-                }
-            });
-
-            entity.addComponent(new LeadTrack(notes));
+            entity.addComponent(new LeadTrack(song.notes));
             entity.addComponent(new SongTime(0));
             entity.addComponent(new TrackPosition(0));
             toLoad.destroy();

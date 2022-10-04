@@ -13,7 +13,7 @@ export class NoteHighlighter extends System<[NoteData]> {
 
         let notes: Note[];
         let register: Register;
-        if (game.keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight)) {
+        if (game.keyboard.isKeyDown(Key.ShiftLeft, Key.ShiftRight, Key.Enter)) {
             notes = upperNotes;
             register = Register.HIGH;
         } else {
