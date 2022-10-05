@@ -1,5 +1,5 @@
 import {Component, GlobalSystem, Key, Log} from "lagom-engine";
-import {MainMenuScene, MainScene} from "../LD51";
+import {MainMenuScene, MainScene, trumpetSound} from "../LD51";
 import {SoundFontPlayer} from "@magenta/music/es6";
 
 export class Note extends Component
@@ -31,8 +31,6 @@ export const upperNotes: Note[] = [
     new Note([Key.KeyW], 66),
     new Note([], 67),
 ];
-
-const trumpetSound : number = 56;
 
 export class NotePlayer extends GlobalSystem
 {

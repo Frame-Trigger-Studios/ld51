@@ -4,14 +4,19 @@ import {
     Scene,
     Sprite,
     SpriteSheet,
-    Component,
     TextDisp,
     GlobalSystem,
     TimerSystem,
     Log, LogLevel, Diagnostics, ScreenShaker, Key, AnimatedSprite, FrameTriggerSystem
 } from "lagom-engine";
 import {NotePlayer} from "./midi/NotePlay";
-import {loadedSongs, LoadSong, NoteMover, NoteSpawner, songHasEnded, SongLoader, SongStarter} from "./midi/PlaySong";
+import {
+    LoadSong,
+    NoteMover,
+    NoteSpawner,
+    SongLoader,
+    SongStarter
+} from "./midi/PlaySong";
 import background from "./art/bg.png";
 import note from "./art/note.png";
 import note_sustain from "./art/note-sustain.png";
@@ -40,6 +45,12 @@ export enum Layers
 
 export const screenWidth = 480;
 export const screenHeight = 320;
+export let NOTE_SPEED = 100;
+export let trumpetSound : number = 56;
+export let songHasEnded = false;
+
+export let endSong = () => songHasEnded = true;
+export let unendSong = () => songHasEnded = false;
 
 export class LD51 extends Game
 {
@@ -131,36 +142,16 @@ export class MainScene extends Scene
         this.addGlobalSystem(new BarHighlighter());
 
         const e = this.addEntity(new Entity("switzerland"));
-        e.addComponent(this.song);}
-}
 
-class ClickAction extends Component
-{
-    constructor(readonly action: number)
-    {
-        super();
-    }
-
-    onAction()
-    {
-        const game = this.getScene().getGame();
-        switch (this.action)
-        {
-            // Start game
-            case 0:
-                {
-                    game.setScene(new MainScene(game, (this.getScene() as MainScene).song));
-                    break;
-                }
-            // // Restart
-            // case 1:
-            // {
-            //     console.log("restart game");
-            //     game.setScene(new MainMenuScene(game));
-            //     break;
-            // }
+        if (this.song.song.name === "switzerland") {
+            NOTE_SPEED = 100;
+            trumpetSound = 56;
+        } else {
+            NOTE_SPEED = 200;
+            trumpetSound = 56;
         }
-    }
+
+        e.addComponent(this.song);}
 }
 
 class MainMenuClickListener extends GlobalSystem
@@ -208,7 +199,18 @@ export class EndScene extends Scene
         endCard.addComponent(new Sprite(this.game.getResource("end-card").texture(0, 0)));
         endCard.addComponent(new TextDisp(screenWidth / 4 + 10, screenHeight / 2 - 50, "Well done! You earned:", { fill: 0xf6cd26, fontSize: 20 }));
         endCard.addComponent(new TextDisp(screenWidth / 4 + 10, screenHeight / 2, globalScore, { fill: 0xf6cd26, fontSize: 30 }));
-        endCard.addComponent(new TextDisp(screenWidth / 4 + 10, screenHeight / 2 + 60, "F5 to play again", { fill: 0xf6cd26, fontSize: 20 }));
+
+        this.addGUIEntity(new Entity("restartText", 0, 0, Layers.GUI))
+            .addComponent(new RestartText());
+    }
+
+    update(delta: number) {
+        super.update(delta);
+        if (this.getGame().keyboard.isKeyDown(Key.Digit0))
+        {
+            unendSong();
+            this.getGame().setScene(new MainMenuScene(this.getGame()));
+        }
     }
 }
 
@@ -237,7 +239,6 @@ class RestartText extends TextDisp
     onAdded()
     {
         super.onAdded();
-        this.getEntity().addComponent(new ClickAction(1));
     }
 }
 

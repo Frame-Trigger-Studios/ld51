@@ -1,15 +1,14 @@
-import {Component, Entity, Key, Log, Scene, ScreenShake, ScreenShaker, System, TextDisp, Timer} from "lagom-engine";
+import {Component, Entity, Log, ScreenShake, System, TextDisp, Timer} from "lagom-engine";
 import * as mm from '@magenta/music/es6';
 import {SoundFontPlayer} from '@magenta/music/es6';
 import {Song} from "./Songs";
 import {LeadNote, LeadTrack, SongTime, TrackPosition} from "./PlayableTrack";
 import {createNote, NoteData, Register, updateNote} from "../ui/notes";
 import {DestroyMeNextFrame} from "../util/DestroyMeNextFrame";
-import {Layers, MainScene} from "../LD51";
+import {endSong, Layers, MainScene, NOTE_SPEED} from "../LD51";
 import {ScoreMultiplier} from "../ui/Score";
 
 
-export let songHasEnded = false;
 
 export class LoadSong extends Component
 {
@@ -40,7 +39,6 @@ export class SongReady extends Component
 
 export class FirstNote extends Component {}
 
-const NOTE_SPEED = 100;
 
 export class SongStarter extends System<[SongReady]>
 {
@@ -88,7 +86,7 @@ export async function loadSong(song: Song, primaryChannel: number)
     Log.info("MIDI track loaded. Total time is", sequence.totalTime);
 
     // Max velocity is 127, crush it down to have a max of 20.
-    const newMax = 20;
+    const newMax = song.name === "switzerland" ?  20 : 80;
 
     sequence.notes.forEach(value => {
         value.velocity = (value.velocity as number / 127) * newMax;
@@ -162,11 +160,11 @@ const keyLut: Map<string, string> = new Map([
 const noteLut: Map<string, { lowIdx: number, highIdx: number }> = new Map([
     ["F#", {
         lowIdx: 0,
-        highIdx: 5
+        highIdx: -1
     }],
     ["G", {
         lowIdx: 1,
-        highIdx: 6
+        highIdx: -1
     }],
     ["G#", {
         lowIdx: 2,
@@ -246,7 +244,7 @@ export class NoteSpawner extends System<[LeadTrack, SongTime, IsPlaying, SongRea
 
             if (position.pos >= leadTrack.notes.length) {
                 entity.addComponent(new Timer(7000,
-                    null, false)).onTrigger.register(() => songHasEnded = true);
+                    null, false)).onTrigger.register(endSong);
                 return;
             }
 

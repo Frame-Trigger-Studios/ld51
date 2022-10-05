@@ -28,5 +28,8 @@ export class LeadTrack extends Component
     constructor(readonly notes: LeadNote[])
     {
         super();
+
+        // Remove first note so the start song lag is offset from the first time you have to play.
+        notes.shift();
     }
 }
